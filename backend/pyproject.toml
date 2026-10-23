@@ -1,0 +1,56 @@
+[project]
+name = "kb-agent-backend"
+version = "0.1.0"
+description = "Knowledge base QA + ticket triage backend"
+requires-python = ">=3.12"
+dependencies = [
+  # Web
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.32",
+  "sse-starlette>=2.1",
+  "pydantic>=2.9",
+  "pydantic-settings>=2.5",
+  "python-multipart>=0.0.12",
+  # DB
+  "sqlalchemy>=2.0",
+  "psycopg[binary]>=3.2",
+  # LLM
+  "litellm>=1.50",
+  "instructor>=1.5",
+  "openai>=1.50",
+  # litellm 的非流式调用路径会 import mcp（MCP 工具支持），不装会报
+  # ModuleNotFoundError: No module named 'mcp'
+  "mcp>=1.0",
+  # RAG
+  "qdrant-client>=1.12",
+  # 本地 embedding，不需要 key。首次会下模型（约 90MB）
+  "fastembed>=0.4",
+  "pypdf>=5.0",
+  "python-docx>=1.1",
+  # 可观测 / 评测
+  "langfuse>=2.50",
+  "deepeval>=2.0",
+  # 工具
+  "redis>=5.0",
+  "tenacity>=9.0",
+  "structlog>=24.4",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3",
+  "pytest-asyncio>=0.24",
+  "httpx>=0.27",
+  "ruff>=0.7",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
