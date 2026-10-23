@@ -87,55 +87,73 @@ export default function TracesPage() {
       <div className="mt-4 space-y-2">
         {loading &&
           [0, 1, 2].map((i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl border border-line bg-white" />
+            <div key={i} className="h-20 animate-pulse rounded-2xl border border-line bg-white" />
           ))}
 
         {!loading && traces.length === 0 && (
-          <div className="rounded-xl border border-dashed border-line bg-white py-12 text-center text-sm text-muted">
-            还没有记录，去问答页问几个问题
+          <div className="rounded-2xl border border-dashed border-line bg-white py-14 text-center">
+            <div className="text-[13px] text-muted">还没有记录</div>
+            <div className="mt-1 text-[11.5px] text-faint">去问答页问几个问题，这里会出现每一步的细节</div>
           </div>
         )}
 
         {traces.map((t) => (
-          <div key={t.id} className="overflow-hidden rounded-xl border border-line bg-white">
+          <div
+            key={t.id}
+            className="overflow-hidden rounded-2xl border border-line bg-white shadow-card transition-shadow hover:shadow-lift"
+          >
             <button
               onClick={() => toggle(t.id)}
-              className="flex w-full items-start justify-between gap-4 px-4 py-3 text-left hover:bg-[#fafbfd]"
+              className="flex w-full items-start justify-between gap-4 px-4 py-3.5 text-left"
             >
               <div className="min-w-0">
-                <div className="truncate text-sm font-medium">{t.question}</div>
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted">
-                  <span className={t.fallback ? "text-amber-700" : "text-green-700"}>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`shrink-0 rounded-md px-1.5 py-0.5 text-[10.5px] font-medium ${
+                      t.fallback
+                        ? "bg-[#faeeda] text-[#854f0b]"
+                        : "bg-[#e8f5ec] text-[#1f7a3d]"
+                    }`}
+                  >
                     {t.fallback ? "拒答" : `命中 ${t.hit_count}`}
                   </span>
-                  <span>·</span>
+                  <span className="truncate text-[13.5px] font-medium">{t.question}</span>
+                </div>
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 pl-0.5 font-mono text-[10.5px] text-faint">
                   <span>{t.latency_ms}ms</span>
-                  <span>·</span>
+                  <span className="opacity-40">/</span>
                   <span>${t.cost_usd.toFixed(6)}</span>
-                  <span>·</span>
+                  <span className="opacity-40">/</span>
                   <span>
                     {t.tokens_in}/{t.tokens_out} tok
                   </span>
-                  <span>·</span>
+                  <span className="opacity-40">/</span>
                   <span>{new Date(t.created_at).toLocaleString("zh-CN")}</span>
                 </div>
               </div>
-              <span className="shrink-0 text-xs text-muted">{openId === t.id ? "收起" : "展开"}</span>
+              <span className="shrink-0 pt-0.5 text-[11.5px] text-faint">
+                {openId === t.id ? "收起" : "展开"}
+              </span>
             </button>
 
             {openId === t.id && (
               <div className="border-t border-line bg-[#fafbfd] px-4 py-4">
-                {!detail && <div className="text-xs text-muted">加载中…</div>}
+                {!detail && <div className="text-[12px] text-faint">加载中…</div>}
                 {detail && (
                   <>
-                    <div className="space-y-2">
-                      {detail.spans.map((s) => (
-                        <SpanRow key={s.seq} span={s} total={detail.latency_ms} />
+                    <div className="space-y-0">
+                      {detail.spans.map((s, i) => (
+                        <SpanRow
+                          key={s.seq}
+                          span={s}
+                          total={detail.latency_ms}
+                          last={i === detail.spans.length - 1}
+                        />
                       ))}
                     </div>
-                    <div className="mt-4 rounded-lg border border-line bg-white p-3">
-                      <div className="text-[11px] font-semibold text-muted">最终回答</div>
-                      <div className="mt-1 whitespace-pre-wrap text-xs leading-6">
+                    <div className="mt-3 rounded-xl border border-line bg-white p-3">
+                      <div className="text-[11px] font-medium text-muted">最终回答</div>
+                      <div className="mt-1 whitespace-pre-wrap text-[12.5px] leading-6 text-[#39415a]">
                         {detail.answer || "（空）"}
                       </div>
                     </div>
@@ -150,42 +168,58 @@ export default function TracesPage() {
   );
 }
 
-function SpanRow({ span, total }: { span: Span; total: number }) {
+/** 一个步骤：左侧时间轴，右侧耗时条与入参出参 */
+function SpanRow({ span, total, last }: { span: Span; total: number; last: boolean }) {
   const pct = total > 0 ? Math.min(100, (span.duration_ms / total) * 100) : 0;
   const failed = span.status !== "ok";
 
   return (
-    <div className="rounded-lg border border-line bg-white p-3">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold">{SPAN_LABEL[span.name] ?? span.name}</span>
-          {failed && (
-            <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700">
-              失败
-            </span>
-          )}
-        </div>
-        <span className="text-[11px] text-muted">
-          +{span.started_ms}ms · {span.duration_ms}ms
-        </span>
-      </div>
+    <div className="relative pl-5">
+      {/* 时间轴：竖线 + 节点 */}
+      {!last && <span className="absolute left-[3.5px] top-4 h-full w-px bg-line" />}
+      <span
+        className={`absolute left-0 top-[7px] h-[7px] w-[7px] rounded-full ring-2 ring-[#fafbfd] ${
+          failed ? "bg-[#b3261e]" : "bg-brand"
+        }`}
+      />
 
-      <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-line">
-        <div
-          className="h-full rounded-full bg-brand"
-          style={{ width: `${Math.max(2, pct)}%`, opacity: failed ? 0.4 : 1 }}
-        />
-      </div>
-
-      <div className="mt-2 space-y-0.5">
-        {Object.entries(span.data).map(([k, v]) => (
-          <div key={k} className="flex gap-2 text-[11px] leading-5">
-            <span className="shrink-0 text-muted">{k}</span>
-            <span className="break-all text-ink">
-              {typeof v === "object" ? JSON.stringify(v, null, 0) : String(v)}
+      <div className="pb-3.5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-[12.5px] font-semibold">
+              {SPAN_LABEL[span.name] ?? span.name}
             </span>
+            {failed && (
+              <span className="rounded bg-[#fdeaea] px-1.5 py-0.5 text-[10px] font-semibold text-[#a1231b]">
+                失败
+              </span>
+            )}
           </div>
-        ))}
+          <span className="font-mono text-[10.5px] text-faint">
+            +{span.started_ms} · {span.duration_ms}ms
+          </span>
+        </div>
+
+        <div className="mt-1.5 h-[3px] overflow-hidden rounded-full bg-[#eef0f4]">
+          <div
+            className="h-full rounded-full"
+            style={{
+              width: `${Math.max(1.5, pct)}%`,
+              background: failed ? "#d98b86" : "#2f6fed",
+            }}
+          />
+        </div>
+
+        <div className="mt-1.5 space-y-0.5">
+          {Object.entries(span.data).map(([k, v]) => (
+            <div key={k} className="flex gap-2 text-[11px] leading-5">
+              <span className="w-[86px] shrink-0 text-faint">{k}</span>
+              <span className="break-all font-mono text-[10.5px] text-[#4a5162]">
+                {typeof v === "object" ? JSON.stringify(v) : String(v)}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

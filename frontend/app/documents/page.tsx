@@ -41,6 +41,7 @@ const VISIBILITY_STYLE: Record<string, string> = {
 export default function DocumentsPage() {
   const [docs, setDocs] = useState<DocumentOut[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const [visibility, setVisibility] = useState("public");
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -120,9 +121,37 @@ export default function DocumentsPage() {
         </div>
       )}
 
-      <label className="mt-5 flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-line bg-white py-10 hover:border-brand">
-        <span className="text-sm text-muted">
-          {uploading ? "上传中…" : "点击选择文件，或拖到这里"}
+      <label
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragging(false);
+          onPick(e.dataTransfer.files?.[0]);
+        }}
+        className={`mt-5 flex cursor-pointer flex-col items-center justify-center gap-2.5 rounded-2xl border border-dashed bg-white py-11 shadow-card transition-colors ${
+          dragging ? "border-brand bg-brand-soft/40" : "border-line hover:border-[#c7d3ff] hover:bg-[#fbfcff]"
+        }`}
+      >
+        <span
+          className={`grid h-11 w-11 place-items-center rounded-full transition-colors ${
+            dragging ? "bg-brand text-white" : "bg-brand-soft text-brand"
+          }`}
+        >
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 16V4" />
+            <path d="m6 10 6-6 6 6" />
+            <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+          </svg>
+        </span>
+        <span className="text-[13px] font-medium text-ink">
+          {uploading ? "上传中…" : dragging ? "松手即可上传" : "点击选择文件，或拖到这里"}
+        </span>
+        <span className="text-[11.5px] text-faint">
+          PDF · Word · Markdown · TXT · HTML，单文件 ≤ 20MB
         </span>
         <input
           ref={fileRef}
