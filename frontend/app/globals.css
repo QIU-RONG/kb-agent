@@ -2,21 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------- 基础 ---------- */
+
 html,
 body {
-  background: #f5f6f8;
-  color: #1a1d24;
+  background: #f6f7f9;
+  color: #14171f;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-/* 流式输出时的光标，让"正在生成"有明确视觉信号 */
+body {
+  font-feature-settings: "kern" 1;
+  letter-spacing: -0.006em;
+}
+
+::selection {
+  background: #dfe7ff;
+  color: #14171f;
+}
+
+/* 细滚动条，避免在卡片里出现粗黑条 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d6d9e0 transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #d6d9e0;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---------- 流式光标 ---------- */
+
 .caret::after {
   content: "";
   display: inline-block;
   width: 2px;
   height: 1em;
-  margin-left: 2px;
+  margin-left: 3px;
   background: #2f6fed;
+  border-radius: 1px;
   vertical-align: text-bottom;
   animation: blink 1s steps(2, start) infinite;
 }
@@ -27,84 +62,120 @@ body {
   }
 }
 
-/* Markdown 渲染：Tailwind preflight 把默认样式清了，这里补回来。
-   只覆盖回答区，不影响页面其他部分。 */
-.md > * + * {
-  margin-top: 0.55em;
+/* ---------- Markdown 正文 ----------
+   Tailwind preflight 会清掉默认样式，这里补回来。
+   行高和段距按长文阅读调过，不是默认值。 */
+
+.md {
+  font-size: 14.5px;
+  line-height: 1.78;
+  color: #23272f;
 }
+
+.md > * + * {
+  margin-top: 0.7em;
+}
+
 .md h1,
 .md h2,
 .md h3 {
-  font-weight: 600;
-  line-height: 1.4;
-  margin-top: 1em;
+  font-weight: 650;
+  line-height: 1.45;
+  letter-spacing: -0.011em;
+  margin-top: 1.15em;
 }
 .md h1 {
-  font-size: 1.05em;
+  font-size: 1.12em;
 }
 .md h2 {
-  font-size: 1em;
+  font-size: 1.05em;
 }
 .md h3 {
-  font-size: 0.95em;
+  font-size: 0.98em;
+}
+.md > :first-child {
+  margin-top: 0;
+}
+
+.md ul,
+.md ol {
+  padding-left: 1.35em;
 }
 .md ul {
   list-style: disc;
-  padding-left: 1.3em;
 }
 .md ol {
   list-style: decimal;
-  padding-left: 1.3em;
 }
 .md li + li {
-  margin-top: 0.2em;
+  margin-top: 0.28em;
 }
+.md li::marker {
+  color: #9aa1ad;
+}
+
+.md strong {
+  font-weight: 650;
+  color: #14171f;
+}
+
 .md code {
   background: #f1f3f8;
-  border-radius: 4px;
-  padding: 1px 5px;
-  font-family: ui-monospace, Menlo, monospace;
-  font-size: 0.88em;
+  border-radius: 5px;
+  padding: 1.5px 5px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.86em;
   color: #2f4b7c;
 }
+
 .md pre {
   background: #f8f9fc;
-  border: 1px solid #e6e9ef;
-  border-radius: 8px;
-  padding: 10px 12px;
+  border: 1px solid #e7e9ef;
+  border-radius: 10px;
+  padding: 12px 14px;
   overflow-x: auto;
+  font-size: 0.88em;
+  line-height: 1.7;
 }
 .md pre code {
   background: transparent;
   padding: 0;
-  font-size: 0.86em;
+  font-size: 1em;
   color: #39415a;
 }
+
 .md blockquote {
-  border-left: 3px solid #e6e9ef;
-  padding-left: 0.8em;
-  color: #5c6474;
+  border-left: 3px solid #e0e3ea;
+  padding-left: 0.9em;
+  color: #5f6673;
 }
+
 .md a {
   color: #2f6fed;
   text-decoration: underline;
   text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
 }
+
 .md table {
   border-collapse: collapse;
-  font-size: 0.92em;
+  font-size: 0.94em;
+  display: block;
+  overflow-x: auto;
 }
 .md th,
 .md td {
-  border: 1px solid #e6e9ef;
-  padding: 4px 9px;
+  border: 1px solid #e7e9ef;
+  padding: 6px 10px;
   text-align: left;
 }
 .md th {
   background: #f8f9fc;
   font-weight: 600;
 }
+
 .md hr {
   border: none;
-  border-top: 1px solid #e6e9ef;
+  border-top: 1px solid #e7e9ef;
+  margin: 1.4em 0;
 }

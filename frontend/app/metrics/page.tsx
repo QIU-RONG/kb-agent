@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getMetrics, listTraces, type Metrics, type TraceSummary } from "../../lib/api";
+import { PageHeader } from "../../components/page-header";
 
 export default function MetricsPage() {
   const [m, setM] = useState<Metrics | null>(null);
@@ -29,10 +30,10 @@ export default function MetricsPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-8">
-      <h1 className="text-lg font-semibold">成本与质量</h1>
-      <p className="mt-1 text-sm text-muted">
-        所有数字来自真实调用记账，不是估算。问答的成本、延迟写在每条消息上，这里做聚合。
-      </p>
+      <PageHeader
+        title="成本与质量"
+        desc="所有数字来自真实调用记账，不是估算。问答的成本、延迟写在每条消息上，这里做聚合。"
+      />
 
       {error && (
         <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
@@ -75,7 +76,8 @@ export default function MetricsPage() {
                 <div
                   key={t.id}
                   title={`${t.question} · ${t.latency_ms}ms`}
-                  className="flex-1 rounded-t-sm transition-opacity hover:opacity-70"
+                  // max-w 限制单柱宽度：数据只有两三条时，否则 flex-1 会把它拉成色块
+                  className="max-w-[26px] flex-1 rounded-t-sm transition-opacity hover:opacity-70"
                   style={{
                     height: `${Math.max(4, (t.latency_ms / maxLatency) * 100)}%`,
                     background: t.fallback ? "#EF9F27" : "#378ADD",
@@ -86,6 +88,9 @@ export default function MetricsPage() {
           )}
           <div className="mt-3 flex justify-between text-[11px] text-muted">
             <span>更早</span>
+            {traces.length < 5 && (
+              <span className="text-faint">样本较少（{traces.length} 条），柱宽固定</span>
+            )}
             <span>最近</span>
           </div>
         </div>

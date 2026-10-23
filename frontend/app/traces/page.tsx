@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getTrace, listTraces, type Span, type TraceDetail, type TraceSummary } from "../../lib/api";
+import { PageHeader } from "../../components/page-header";
 
 const SPAN_LABEL: Record<string, string> = {
   rewrite: "查询改写",
@@ -52,21 +53,18 @@ export default function TracesPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-8">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-lg font-bold">链路追踪</h1>
-          <p className="mt-1 text-sm text-muted">
-            每次问答的每一步：改写后的查询、每条候选得分、判分结论、生成耗时。
-            定位 badcase 先看判分，能立刻分清是「没召回」还是「答错了」。
-          </p>
-        </div>
-        <button
-          onClick={reload}
-          className="shrink-0 rounded-lg border border-line bg-white px-3 py-1.5 text-xs text-muted hover:border-brand hover:text-brand"
-        >
-          刷新
-        </button>
-      </div>
+      <PageHeader
+        title="链路追踪"
+        desc="每次问答的每一步：改写后的查询、每条候选得分、判分结论、生成耗时。定位 badcase 先看判分，能立刻分清是「没召回」还是「答错了」。"
+        right={
+          <button
+            onClick={reload}
+            className="rounded-lg border border-line bg-white px-3 py-1.5 text-[12px] text-muted transition-colors hover:border-brand hover:text-brand"
+          >
+            刷新
+          </button>
+        }
+      />
 
       <div className="mt-4 flex items-center gap-4 text-sm">
         <label className="flex items-center gap-1.5 text-muted">

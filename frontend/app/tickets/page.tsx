@@ -7,6 +7,7 @@ import {
   listTickets,
   type Ticket,
 } from "../../lib/api";
+import { PageHeader } from "../../components/page-header";
 
 const CATEGORIES = ["billing", "account", "bug", "feature", "other"];
 
@@ -57,13 +58,13 @@ export default function TicketsPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-8">
-      <h1 className="text-lg font-bold">工单台</h1>
-      <p className="mt-1 text-sm text-muted">
-        提交即自动分流。置信度低于 0.7 的会标为待人工，人工纠正后回流。
-      </p>
+      <PageHeader
+        title="工单台"
+        desc="提交即自动分流。置信度低于 0.7 的会标为待人工，人工纠正后回流。"
+      />
 
       {/* 新建 */}
-      <div className="mt-5 rounded-xl border border-line bg-white p-4">
+      <div className="rounded-2xl border border-line bg-white p-4 shadow-card">
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}

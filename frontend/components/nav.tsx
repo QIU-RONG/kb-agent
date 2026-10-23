@@ -41,26 +41,26 @@ export function Nav() {
   }
 
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-white/85 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-5xl items-center gap-6 px-6">
+    <header className="sticky top-0 z-20 border-b border-line bg-white/80 backdrop-blur-md">
+      <div className="mx-auto flex h-14 max-w-5xl items-center gap-7 px-6">
         <Link href="/" className="flex items-center gap-2">
-          <span className="grid h-6 w-6 place-items-center rounded-md bg-brand text-[11px] font-bold text-white">
+          <span className="grid h-[26px] w-[26px] place-items-center rounded-[8px] bg-brand text-[10.5px] font-bold tracking-tight text-white shadow-sm">
             kb
           </span>
-          <span className="text-sm font-semibold tracking-tight">kb-agent</span>
+          <span className="text-[14px] font-semibold tracking-[-0.02em]">kb-agent</span>
         </Link>
 
-        <nav className="flex items-center gap-1">
+        <nav className="flex items-center gap-0.5">
           {LINKS.map((l) => {
             const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
             return (
               <Link
                 key={l.href}
                 href={l.href}
-                className={`rounded-lg px-3 py-1.5 text-[13px] transition-colors ${
+                className={`rounded-lg px-2.5 py-1.5 text-[13px] transition-colors ${
                   active
-                    ? "bg-[#eef2ff] font-semibold text-brand"
-                    : "text-muted hover:bg-[#f5f6f8] hover:text-ink"
+                    ? "bg-brand-soft font-semibold text-brand"
+                    : "text-muted hover:bg-[#f4f5f8] hover:text-ink"
                 }`}
               >
                 {l.label}

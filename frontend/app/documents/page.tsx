@@ -8,6 +8,7 @@ import {
   type DocumentOut,
 } from "../../lib/api";
 import { getUser, ROLE_LABEL } from "../../lib/auth";
+import { PageHeader } from "../../components/page-header";
 
 const STATUS_LABEL: Record<string, string> = {
   pending: "排队中",
@@ -95,10 +96,10 @@ export default function DocumentsPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-8">
-      <h1 className="text-lg font-bold">文档库</h1>
-      <p className="mt-1 text-sm text-muted">
-        支持 PDF / Word / Markdown / 文本，单文件上限 20MB。上传后后台解析，可关闭页面。
-      </p>
+      <PageHeader
+        title="文档库"
+        desc="支持 PDF / Word / Markdown / 文本，单文件上限 20MB。上传后后台解析，可关闭页面。可见范围决定谁能检索到它。"
+      />
 
       {canUploadSensitive && (
         <div className="mt-4 flex items-center gap-2 text-[12px]">
