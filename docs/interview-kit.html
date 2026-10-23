@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试材料包 · kb-agent</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:#f5f6f8; color:#1a1d24; line-height:1.7; -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:1000px; margin:0 auto; padding:52px 28px 88px; }
+
+  header { margin-bottom:36px; }
+  .eyebrow { font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#8a91a0; font-weight:600; margin-bottom:13px; }
+  h1 { font-size:34px; font-weight:800; letter-spacing:-.02em; line-height:1.24; }
+  h1 span { color:#2f6fed; }
+  .sub { margin-top:14px; color:#5c6474; font-size:15px; max-width:720px; }
+
+  nav { background:#fff; border:1px solid #e6e9ef; border-radius:12px; padding:13px 18px; margin-bottom:40px; display:flex; gap:8px; flex-wrap:wrap; }
+  nav a { font-size:12.6px; color:#5c6474; text-decoration:none; padding:4px 11px; border-radius:7px; background:#f7f8fb; }
+  nav a:hover { background:#eef2ff; color:#2f6fed; }
+
+  section { margin-bottom:46px; }
+  .sec-head { display:flex; align-items:baseline; gap:12px; margin-bottom:6px; }
+  .sec-num { font-size:12px; font-weight:700; color:#b6bcc9; letter-spacing:.1em; }
+  h2 { font-size:21px; font-weight:750; letter-spacing:-.01em; }
+  .sec-desc { color:#78808f; font-size:13.4px; margin-bottom:18px; max-width:800px; }
+
+  .tabs { display:flex; gap:6px; margin-bottom:14px; }
+  .tab { font-size:12.6px; padding:5px 13px; border-radius:8px; border:1px solid #e6e9ef; background:#fff; color:#5c6474; cursor:pointer; }
+  .tab.on { background:#2f6fed; border-color:#2f6fed; color:#fff; font-weight:600; }
+
+  .panel { display:none; }
+  .panel.on { display:block; }
+
+  .bullet { background:#fff; border:1px solid #e6e9ef; border-left:3px solid #2f6fed; border-radius:0 12px 12px 0; padding:16px 20px; margin-bottom:10px; font-size:13.6px; color:#39415a; }
+  .bullet b { color:#1a1d24; }
+  .bullet em { font-style:normal; background:#eef2ff; color:#2f6fed; border-radius:4px; padding:0 5px; font-weight:600; }
+
+  table.tbl { width:100%; border-collapse:collapse; background:#fff; border:1px solid #e6e9ef; border-radius:12px; overflow:hidden; font-size:13px; }
+  .tbl th { background:#f8f9fc; text-align:left; padding:10px 14px; font-weight:700; color:#5c6474; font-size:12.2px; border-bottom:1px solid #eceef3; }
+  .tbl td { padding:10px 14px; border-bottom:1px solid #f2f4f8; color:#4a5162; vertical-align:top; }
+  .tbl tr:last-child td { border-bottom:none; }
+  .tbl code, code { background:#f4f6fa; border-radius:4px; padding:1px 5px; font-family:ui-monospace,Menlo,monospace; font-size:12.3px; color:#2f4b7c; }
+
+  .step { background:#fff; border:1px solid #e6e9ef; border-radius:12px; padding:14px 18px; margin-bottom:9px; display:grid; grid-template-columns:64px 1fr; gap:16px; }
+  .time { font-size:12.4px; font-weight:700; color:#2f6fed; padding-top:1px; }
+  .act { font-size:13.4px; color:#1a1d24; font-weight:600; margin-bottom:4px; }
+  .say { font-size:13px; color:#5c6474; }
+  .say::before { content:"「"; color:#c8cede; }
+  .say::after { content:"」"; color:#c8cede; }
+
+  .qa { background:#fff; border:1px solid #e6e9ef; border-radius:14px; padding:4px 20px; }
+  .qa-item { padding:15px 0; border-bottom:1px solid #f0f2f6; }
+  .qa-item:last-child { border-bottom:none; }
+  .q { font-size:13.6px; font-weight:650; margin-bottom:5px; }
+  .a { font-size:13px; color:#5c6474; }
+  .a b { color:#1a1d24; }
+
+  .note { background:#fff; border-left:3px solid #e8563f; border-radius:0 10px 10px 0; padding:14px 18px; font-size:13.2px; color:#4a5162; }
+  .note b { color:#1a1d24; }
+  .note + .note { margin-top:10px; }
+  .note.amber { border-left-color:#e8a33f; }
+
+  footer { margin-top:52px; padding-top:20px; border-top:1px solid #e6e9ef; font-size:12.4px; color:#98a0ae; }
+
+  @media (max-width:760px) {
+    .wrap { padding:34px 16px 64px; }
+    h1 { font-size:25px; }
+    .step { grid-template-columns:1fr; gap:6px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Interview Kit · kb-agent · 2026-10-23</div>
+    <h1>面试材料包：<span>简历三行字，和 60 秒演示</span></h1>
+    <p class="sub">每一条 bullet 后面都跟着数字出处。原则是：<b>写上去的每个数字，面试官追问时你都能说出是怎么测的</b>。测不出来的，宁可不写。</p>
+  </header>
+
+  <nav>
+    <a href="#resume">① 简历 bullet</a>
+    <a href="#numbers">② 数字出处</a>
+    <a href="#demo">③ 60 秒演示</a>
+    <a href="#intro">④ 自我介绍</a>
+    <a href="#qa">⑤ 高频追问</a>
+    <a href="#dont">⑥ 别吹的三件事</a>
+  </nav>
+
+  <!-- 1 -->
+  <section id="resume">
+    <div class="sec-head"><span class="sec-num">01</span><h2>简历 bullet（按岗位选一版）</h2></div>
+    <p class="sec-desc">同一个项目，投不同岗位要换不同的切入角度。<b>不要三个版本都塞进简历</b>，选一版，三条，占 4~5 行。</p>
+
+    <div class="tabs">
+      <button class="tab on" data-tab="backend">后端 / 平台</button>
+      <button class="tab" data-tab="fullstack">全栈</button>
+      <button class="tab" data-tab="ai">AI 应用 / 算法工程</button>
+    </div>
+
+    <div class="panel on" data-panel="backend">
+      <div class="bullet">
+        面向内部文档分散、检索靠人工翻找的问题，独立设计并实现「文档解析 → 向量检索 → 流式生成」服务；
+        支持 PDF/Word/Markdown 混合入库，<b>5 条冒烟集准确率 100%</b>（含 2 条防幻觉用例），无召回时主动拒答而非编造。
+      </div>
+      <div class="bullet">
+        把模型调用收敛到统一网关（<code>litellm</code>），实现模型档位路由、超时重试、<b>主备模型自动切换</b>与按次成本记账；
+        单次问答成本 <em>$0.0002</em>，平均延迟 <em>430ms</em>，35 次调用累计 <em>$0.0026</em>，全部可查。
+      </div>
+      <div class="bullet">
+        用 <b>LangGraph</b> 把问答拆成 rewrite / retrieve / grade / generate 四个可单测节点，
+        并自建轻量链路追踪（trace + span 落库），可回看每条候选的相似度与判分依据，
+        把 badcase 定位从「猜」变成「看是召回问题还是生成问题」。
+      </div>
+    </div>
+
+    <div class="panel" data-panel="fullstack">
+      <div class="bullet">
+        独立完成前后端全栈交付：<b>Next.js 15 + FastAPI</b>，四个页面（问答 / 文档 / 工单 / 链路），
+        SSE 逐字流式输出 + 引用来源卡片，用户可中断生成且已输出内容不丢失。
+      </div>
+      <div class="bullet">
+        设计 BFF 层统一转发：模型密钥只存在服务端，浏览器拿不到；
+        <code>/api/chat</code> 保留 SSE 语义单独处理，其余 REST 走 rewrite 转发，避免把后端地址暴露给前端。
+      </div>
+      <div class="bullet">
+        用无头浏览器（CDP）做端到端验证：真实点击 → 断言流式渲染、引用卡片、成本字段全部出现，
+        并沉淀为可复用的截图脚本；前端 <code>tsc --noEmit</code> 零错误。
+      </div>
+    </div>
+
+    <div class="panel" data-panel="ai">
+      <div class="bullet">
+        构建可评测的 RAG 问答系统：本地 embedding（<code>bge-small-zh-v1.5</code>，512 维）+ Qdrant，
+        在冒烟集上准确率 100%，其中 2 条「语料中不存在的问题」正确拒答，验证了防幻觉设计。
+      </div>
+      <div class="bullet">
+        <b>实测发现密集检索的阈值陷阱</b>：不相关问题相似度 0.41~0.47、真问题 0.50~0.74，单阈值切不干净；
+        改为三段式判分（≥0.60 直判、&lt;0.35 直拒、中间交 LLM 判一次），把误召回压到 0，
+        额外成本约 100 token/次。
+      </div>
+      <div class="bullet">
+        实现工单自动分流：用 <code>instructor</code> + Pydantic 做 schema 约束输出，置信度低于 0.7 自动转人工；
+        实测清晰工单 <em>0.90~0.95</em> 直接路由，模糊工单 <em>0.25</em> 进人工队列，并保留人工纠正回流数据。
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section id="numbers">
+    <div class="sec-head"><span class="sec-num">02</span><h2>每个数字的出处</h2></div>
+    <p class="sec-desc">面试被问「这个数怎么来的」时，照着这张表答。答不上来的数字就是给自己挖坑。</p>
+    <table class="tbl">
+      <tr><th>数字</th><th>怎么测的</th><th>边界（主动说明更可信）</th></tr>
+      <tr><td><b>100%（5/5）</b></td><td><code>pytest tests/test_eval.py</code>，5 条黄金集逐条比对关键词</td><td>只有 5 条，是冒烟集不是基准；真正有意义的要 50+ 条</td></tr>
+      <tr><td><b>$0.0002 / 次</b></td><td>每次调用后按模型单价 × token 记账，写入 messages 表，再聚合</td><td>单价是手写常量表，不是账单核对；量级对，绝对值可能有偏差</td></tr>
+      <tr><td><b>430ms 平均延迟</b></td><td><code>/metrics/summary</code> 对 messages.latency_ms 求平均</td><td>本地网络 + 单机，不含公网 RTT；首字延迟约 1.1s，更长</td></tr>
+      <tr><td><b>0.41~0.47 / 0.50~0.74</b></td><td>10 条问题跑一遍，把 retrieval 事件的 top_score 记下来分两类</td><td>只在这份样例语料上成立，换语料要重标定</td></tr>
+      <tr><td><b>0.90 / 0.25 置信度</b></td><td>4 条工单实测，模型自报 confidence</td><td>模型自评的置信度不等于真实准确率，只能当阈值信号</td></tr>
+    </table>
+  </section>
+
+  <!-- 3 -->
+  <section id="demo">
+    <div class="sec-head"><span class="sec-num">03</span><h2>60 秒演示脚本</h2></div>
+    <p class="sec-desc">录屏或现场演示都用这个顺序。<b>先给结果，再给原理</b>——面试官没耐心看你配置环境。</p>
+
+    <div class="step"><div class="time">0-8s</div><div><div class="act">打开问答页，直接点「报销流程需要几天？」</div><div class="say">这是个知识库问答，先看效果：回答会逐字出来，下面带引用来源。</div></div></div>
+    <div class="step"><div class="time">8-18s</div><div><div class="act">等流式结束，鼠标指向引用卡片</div><div class="say">每条引用标了文档名和匹配度，底部这行是模型、耗时、单次成本——这三个数都是真实记账，不是写死的。</div></div></div>
+    <div class="step"><div class="time">18-28s</div><div><div class="act">输入「公司股票代码是多少」</div><div class="say">这个文档里没有。它不会硬编，而是明确说找不到，并且这一步根本不会调用模型——既防幻觉也省钱。</div></div></div>
+    <div class="step"><div class="time">28-40s</div><div><div class="act">切到链路页，展开刚才那条</div><div class="say">这是我自建的追踪，能看到每一步。检索拿了两条候选，0.74 的直接判相关；刚才拒答那条是 0.46，被模型判成无关。</div></div></div>
+    <div class="step"><div class="time">40-50s</div><div><div class="act">切到工单页，提交一条模糊工单</div><div class="say">第二个业务场景共用同一套底座：输出严格 JSON，置信度低于 0.7 自动标待人工，人工改了会回流。</div></div></div>
+    <div class="step"><div class="time">50-60s</div><div><div class="act">回到 README 的评测结果</div><div class="say">最后是评测：5 条冒烟集全过，包括 2 条防幻觉用例。数字不大，但每个都能复现。</div></div></div>
+
+    <div class="note amber" style="margin-top:14px"><b>现场演示的保险做法：</b>提前把后端跑起来、文档索引好，别在面试时上传文件。网络断了就切 <code>LLM_MODE=mock</code>——链路和 UI 完全一样，只是回答是固定文本，能保住演示不翻车。</div>
+  </section>
+
+  <!-- 4 -->
+  <section id="intro">
+    <div class="sec-head"><span class="sec-num">04</span><h2>两段自我介绍</h2></div>
+    <p class="sec-desc">30 秒版用于开场，2 分钟版用于「讲讲你这个项目」。</p>
+
+    <div class="bullet" style="border-left-color:#1f7a3d">
+      <b>30 秒版</b><br>
+      我做过一个内部知识库问答系统，前后端都是自己写的。它不只是调 API——我重点解决的是接进真实业务后的三个问题：
+      检索不准的时候怎么不瞎编、成本怎么控、出了问题怎么定位。为此我做了三段式判分、统一模型网关和自建链路追踪，
+      最后有评测集和成本数据能验证效果。
+    </div>
+
+    <div class="bullet" style="border-left-color:#1f7a3d">
+      <b>2 分钟版（结构：问题 → 方案 → 难点 → 结果）</b><br>
+      「起因是内部文档散在共享盘和邮件里，找人问比搜索快，但人会请假。<br><br>
+      我做了两层：一层是把文档解析、切片、向量化、检索、生成串成一条链路；另一层是工单自动分流，输出结构化 JSON 直接入库。
+      两个场景共用同一套模型网关和可观测设施。<br><br>
+      中间最难的不是接模型，是<b>判断「该不该答」</b>。我一开始用相似度阈值，实测发现不相关问题也能拿 0.41~0.47，
+      跟真问题的 0.50 几乎贴着，加个问号就能掉到阈值以下。后来改成三段式：高置信直接答、低置信直接拒、中间让模型判一次。<br><br>
+      结果是冒烟集 5/5，单次成本约 <b>0.0015 元</b>，所有调用都有 trace 可以回看。」
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section id="qa">
+    <div class="sec-head"><span class="sec-num">05</span><h2>八个高频追问</h2></div>
+    <p class="sec-desc">括号里是对应的 ADR 编号，答的时候不用报编号，但心里要有底。</p>
+    <div class="qa">
+      <div class="qa-item"><div class="q">为什么不用现成的 RAG 框架（LangChain / Dify）？</div><div class="a">用了 litellm 做网关、LangGraph 做编排，但没用 Chain 包住整个流程。<b>原因是抽象层太重，出问题定位不到具体环节</b>；而 Dify 这类可视化平台定制深度不够，讲不出架构取舍。我的判断标准是：能不能说清每个组件为什么在这。（ADR-001/002）</div></div>
+      <div class="qa-item"><div class="q">密集检索为什么还需要关键词召回？</div><div class="a">两个作用：一是向量库挂了或没建索引时的<b>降级兜底</b>，否则所有问题都会变成"找不到"；二是为后面的混合检索留接口。代价是两种分数不同量纲，阈值必须分开配。（ADR-007/011）</div></div>
+      <div class="qa-item"><div class="q">为什么阈值是 0.6 / 0.35，不是 0.5？</div><div class="a">实测出来的：真问题 0.50~0.74、不相关问题 0.41~0.47，中间地带太窄，单点切会误伤。所以设了一个"灰色区间"交给 LLM 判。<b>换 embedding 模型这两个数必须重标定</b>，我在配置里写了注释。（ADR-011）</div></div>
+      <div class="qa-item"><div class="q">LLM 判分不是又加了一次延迟和成本？</div><div class="a">只对灰色地带的 top-1 判，约 100 token、0.6 秒；高置信度的直接放行不调模型。相比之下，把真问题判成"找不到"对用户的伤害更大，所以这个交换是划算的。</div></div>
+      <div class="qa-item"><div class="q">为什么不用 Langfuse？</div><div class="a">它需要一整套服务端（Postgres + Web + Docker）。我的目标是 clone 下来就能跑，所以自己写了轻量 trace，接口对齐 OTel span 语义，要换只替换 Tracer 实现。<b>而且我要的粒度是"每个候选为什么被丢"，这个 Langfuse 默认视图不直接给。</b>（ADR-013）</div></div>
+      <div class="qa-item"><div class="q">流式输出用户中途关页面，后端怎么办？</div><div class="a">监听 disconnect，取消 asyncio task，<b>已生成的部分照样落库</b>。这样既省 token，用户回来也能看到答到一半的内容。（chat.py）</div></div>
+      <div class="qa-item"><div class="q">向量库和业务库怎么保证一致？</div><div class="a">删除时<b>先删向量再删业务记录</b>。反过来的话，业务记录没了、向量还在，用户搜到的引用会指向不存在的文档。向量删失败只是留下孤儿数据，可以后台清理，用户无感。（ADR-005）</div></div>
+      <div class="qa-item"><div class="q">如果文档量涨到 100 万份？</div><div class="a">三件事：切片和索引离线化、向量库从 local 切 server 模式并分片、召回改两级（粗排 top-100 再精排）。关键词召回那套 SQL 扫描要换成 FTS 或 BM25，现在这个实现只适合万级以下。</div></div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section id="dont">
+    <div class="sec-head"><span class="sec-num">06</span><h2>别吹的三件事</h2></div>
+    <div class="note"><b>不要说「准确率 100%」而不加限定。</b>5 条用例的 100% 和 500 条的 100% 是两回事。说「5 条冒烟集全过，包括 2 条防幻觉用例」，比一个孤零零的 100% 可信得多。</div>
+    <div class="note"><b>不要说「生产级」「高并发」。</b>这是个单机项目，没压测、没多副本、没灰度。被追问一句"QPS 多少"就露馅了。说「完整链路可跑通、有评测和可观测」，是实话也够用。</div>
+    <div class="note amber"><b>不要隐瞒没做的部分。</b>生产构建没在本机验证通过、Qdrant 只用过 local 模式、没有真实用户——这些主动说出来，反而证明你知道边界在哪。<b>面试官最怕的不是你没做过，是你把没做过的说成做过了。</b></div>
+  </section>
+
+  <footer>
+    配套材料：<code>docs/spec.html</code>（工程规格与验收清单）、<code>docs/decisions.md</code>（13 条 ADR）、<code>README.md</code>（实测记录）。
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('on'); });
+      document.querySelectorAll('.panel').forEach(function (p) { p.classList.remove('on'); });
+      tab.classList.add('on');
+      var target = document.querySelector('.panel[data-panel="' + tab.dataset.tab + '"]');
+      if (target) target.classList.add('on');
+    });
+  });
+</script>
+</body>
+</html>

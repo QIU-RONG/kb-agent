@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>前后端工程手册 · 知识库问答 + 工单分流</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:#f5f6f8; color:#1a1d24; line-height:1.68; -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:1080px; margin:0 auto; padding:52px 28px 90px; }
+
+  header { margin-bottom:38px; }
+  .eyebrow { font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#8a91a0; font-weight:600; margin-bottom:14px; }
+  h1 { font-size:36px; font-weight:800; letter-spacing:-.02em; line-height:1.22; }
+  h1 span { color:#2f6fed; }
+  .sub { margin-top:14px; color:#5c6474; font-size:15.5px; max-width:760px; }
+  .meta { margin-top:20px; display:flex; gap:9px; flex-wrap:wrap; }
+  .pill { background:#fff; border:1px solid #e3e6ec; border-radius:100px; padding:5px 13px; font-size:12.5px; color:#5c6474; }
+
+  /* nav */
+  nav { background:#fff; border:1px solid #e6e9ef; border-radius:12px; padding:14px 18px; margin-bottom:44px; display:flex; gap:8px; flex-wrap:wrap; }
+  nav a { font-size:12.8px; color:#5c6474; text-decoration:none; padding:4px 11px; border-radius:7px; background:#f7f8fb; }
+  nav a:hover { background:#eef2ff; color:#2f6fed; }
+
+  section { margin-bottom:50px; scroll-margin-top:20px; }
+  .sec-head { display:flex; align-items:baseline; gap:12px; margin-bottom:6px; }
+  .sec-num { font-size:12px; font-weight:700; color:#b6bcc9; letter-spacing:.1em; }
+  h2 { font-size:22px; font-weight:750; letter-spacing:-.01em; }
+  .sec-desc { color:#78808f; font-size:13.5px; margin-bottom:20px; max-width:800px; }
+
+  /* stack table */
+  .tbl { width:100%; border-collapse:collapse; background:#fff; border:1px solid #e6e9ef; border-radius:12px; overflow:hidden; font-size:13.3px; }
+  .tbl th { background:#f8f9fc; text-align:left; padding:11px 15px; font-weight:700; color:#5c6474; font-size:12.3px; border-bottom:1px solid #eceef3; white-space:nowrap; }
+  .tbl td { padding:11px 15px; border-bottom:1px solid #f2f4f8; color:#4a5162; vertical-align:top; }
+  .tbl tr:last-child td { border-bottom:none; }
+  .tbl td b { color:#1a1d24; }
+  .tbl code { background:#f4f6fa; border-radius:4px; padding:1px 5px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.2px; color:#2f4b7c; }
+
+  code { background:#f4f6fa; border-radius:4px; padding:1px 5px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; color:#2f4b7c; }
+  pre { background:#fff; border:1px solid #e6e9ef; border-radius:12px; padding:18px 20px; overflow-x:auto; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.6px; line-height:1.75; color:#39415a; }
+  pre .c { color:#98a0ae; }
+  pre .k { color:#2f6fed; font-weight:600; }
+  pre .s { color:#1f7a3d; }
+
+  /* arch */
+  .arch { display:grid; gap:9px; }
+  .row { background:#fff; border:1px solid #e6e9ef; border-radius:12px; padding:14px 18px; display:grid; grid-template-columns:118px 1fr; gap:16px; align-items:center; }
+  .row-label { font-size:12.5px; font-weight:750; color:#2f6fed; }
+  .row-label small { display:block; font-weight:500; color:#a4abb8; font-size:10.5px; }
+  .row-body { font-size:13.2px; color:#4a5162; display:flex; gap:6px; flex-wrap:wrap; }
+  .chip { background:#f4f6fa; border:1px solid #eceef3; border-radius:6px; padding:2px 9px; font-size:12.2px; color:#39415a; }
+  .chip.hi { background:#eef2ff; border-color:#dbe3ff; color:#2f6fed; font-weight:600; }
+  .flow { text-align:center; color:#c8cede; font-size:12px; margin:-2px 0; }
+
+  /* api */
+  .method { display:inline-block; font-size:11px; font-weight:800; border-radius:5px; padding:1px 7px; letter-spacing:.03em; }
+  .get { background:#e8f5ec; color:#1f7a3d; }
+  .post { background:#eef2ff; color:#2f6fed; }
+  .del { background:#fdeceb; color:#c0392b; }
+
+  /* checklist */
+  .week { background:#fff; border:1px solid #e6e9ef; border-radius:14px; margin-bottom:14px; overflow:hidden; }
+  .week-head { padding:14px 20px; background:#f8f9fc; border-bottom:1px solid #eceef3; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .week-title { font-size:14.2px; font-weight:750; }
+  .week-title span { color:#8a91a0; font-weight:500; font-size:12.5px; margin-left:8px; }
+  .progress { font-size:12px; font-weight:700; color:#2f6fed; background:#eef2ff; border-radius:100px; padding:3px 11px; white-space:nowrap; }
+  .week-body { padding:8px 20px 16px; }
+  .task { display:flex; gap:11px; padding:9px 0; border-bottom:1px dashed #f0f2f6; align-items:flex-start; cursor:pointer; }
+  .task:last-child { border-bottom:none; }
+  .task input { margin-top:4px; width:15px; height:15px; accent-color:#2f6fed; cursor:pointer; flex-shrink:0; }
+  .task-txt { font-size:13.3px; color:#4a5162; }
+  .task-txt b { color:#1a1d24; }
+  .task.done .task-txt { color:#a4abb8; text-decoration:line-through; }
+  .task.done .task-txt b { color:#a4abb8; }
+  .metric { display:block; font-size:12.2px; color:#8a91a0; margin-top:3px; }
+  .metric em { font-style:normal; color:#c0392b; font-weight:600; }
+
+  .note { background:#fff; border-left:3px solid #e8a33f; border-radius:0 10px 10px 0; padding:15px 20px; font-size:13.4px; color:#4a5162; }
+  .note b { color:#1a1d24; }
+  .note + .note { margin-top:11px; }
+  .note.red { border-left-color:#e8563f; }
+  .note.blue { border-left-color:#2f6fed; }
+
+  ul.plain { list-style:none; }
+  ul.plain li { font-size:13.4px; color:#4a5162; padding-left:18px; position:relative; margin-bottom:9px; }
+  ul.plain li::before { content:"—"; position:absolute; left:0; color:#c8cede; }
+  ul.plain li b { color:#1a1d24; }
+
+  footer { margin-top:56px; padding-top:20px; border-top:1px solid #e6e9ef; font-size:12.4px; color:#98a0ae; }
+
+  @media (max-width:780px) {
+    .wrap { padding:34px 16px 64px; }
+    h1 { font-size:25px; }
+    .row { grid-template-columns:1fr; gap:8px; }
+    .tbl { font-size:12.4px; }
+    .tbl th, .tbl td { padding:9px 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Full-Stack Engineering Handbook · 2026-10-22</div>
+    <h1>前后端工程手册：<span>知识库问答 + 工单分流</span></h1>
+    <p class="sub">把上一版的项目方案落成可执行的工程规格：技术选型、目录结构、依赖清单、数据库、API 契约、前端页面、以及每周能勾选的验收检查点。配套骨架已生成在 <code>kb-agent/</code> 目录。</p>
+    <div class="meta">
+      <span class="pill">Next.js 15 + FastAPI</span>
+      <span class="pill">SSE 流式</span>
+      <span class="pill">4 周 · 可勾选验收</span>
+      <span class="pill">monorepo 骨架已就绪</span>
+    </div>
+  </header>
+
+  <nav>
+    <a href="#stack">① 技术选型</a>
+    <a href="#arch">② 架构</a>
+    <a href="#tree">③ 目录结构</a>
+    <a href="#deps">④ 依赖清单</a>
+    <a href="#db">⑤ 数据模型</a>
+    <a href="#api">⑥ API 契约</a>
+    <a href="#fe">⑦ 前端页面</a>
+    <a href="#plan">⑧ 验收检查点</a>
+    <a href="#resume">⑨ 简历写法</a>
+  </nav>
+
+  <!-- 1 -->
+  <section id="stack">
+    <div class="sec-head"><span class="sec-num">01</span><h2>技术选型与理由</h2></div>
+    <p class="sec-desc">核心原则：<b>前后端分离，但只有一个 AI 网关</b>。所有模型调用收敛在后端，前端只负责流式渲染和交互状态。这样密钥不落浏览器，成本与限流也好统一管。</p>
+    <table class="tbl">
+      <tr><th>层</th><th>选型</th><th>为什么是它（面试要能答出来）</th></tr>
+      <tr><td>前端框架</td><td><b>Next.js 15</b>（App Router）</td><td>一个仓库同时容纳页面和 BFF 层，Server Component 天然适合先渲染文档列表再流式补内容。</td></tr>
+      <tr><td>前端样式</td><td>Tailwind CSS + <code>shadcn/ui</code></td><td>组件源码在项目里可改，不用对抗库的设计系统。聊天类界面需要大量自定义，这点很关键。</td></tr>
+      <tr><td>流式交互</td><td><b>Vercel AI SDK</b>（<code>ai</code> + <code>@ai-sdk/react</code>）</td><td>把 SSE 解析、增量渲染、中断、重试都封装好了。<b>不要自己手写 EventSource</b>——手写会遇到断线重连、POST 不能带 body 等一堆坑。</td></tr>
+      <tr><td>后端框架</td><td><b>FastAPI</b> + Python 3.12</td><td>AI 生态在 Python，<code>instructor</code>、<code>deepeval</code>、<code>langgraph</code> 都是 Python 优先。异步原生，SSE 用 <code>StreamingResponse</code> 直接吐。</td></tr>
+      <tr><td>模型接入</td><td><code>litellm</code></td><td>统一 100+ 模型的调用格式，内建 fallback / 超时 / 预算。换模型只改配置。</td></tr>
+      <tr><td>编排</td><td><code>langgraph</code></td><td>问答和分流都需要「分支 + 置信度低转人工」的控制流，用图描述比 if-else 清晰，且可持久化状态。</td></tr>
+      <tr><td>检索</td><td><code>fastembed</code> + Qdrant（local 模式）</td><td>本地 ONNX embedding，不需要 key、不需要 Docker；向量库跑嵌入式，数据落在 <code>.qdrant/</code>。<b>实测后改的</b>：原计划的 LightRAG 需要额外服务，而"零依赖可跑"对课程/实习项目更重要。量大再切 <code>QDRANT_MODE=server</code>。</td></tr>
+      <tr><td>结构化输出</td><td><code>instructor</code> + Pydantic</td><td>工单分流的输出必须能直接入库，靠 prompt 约束不可靠，要 schema 校验 + 带错误重试。</td></tr>
+      <tr><td>可观测 / 评测</td><td><code>langfuse</code> + <code>deepeval</code></td><td>前者看线上 trace 和成本，后者做离线评测集回归。<b>这两个是简历差异化的核心。</b></td></tr>
+      <tr><td>数据库</td><td>SQLite（开发）→ Postgres（部署）</td><td>SQLAlchemy 2.0 一套 ORM 两边通吃，切换只改连接串。</td></tr>
+    </table>
+    <div class="note blue" style="margin-top:14px"><b>为什么不让 Next.js 直接调模型？</b>因为要做成本控制、要做多模型 fallback、要落库 trace、要防 prompt 注入。这些都得在后端。前端直连只适合纯 demo，面试官一问「密钥怎么管」就露馅。</div>
+  </section>
+
+  <!-- 2 -->
+  <section id="arch">
+    <div class="sec-head"><span class="sec-num">02</span><h2>请求链路</h2></div>
+    <p class="sec-desc">一次问答的完整路径。注意第 4 步是分叉点：<b>检索命中就直接流式生成，没命中就走「我不知道」的降级分支</b>——这个设计能显著降低幻觉，也是面试可讲的点。</p>
+    <div class="arch">
+      <div class="row"><div class="row-label">浏览器<small>React</small></div><div class="row-body"><span class="chip">聊天界面</span><span class="chip">引用来源卡片</span><span class="chip">工单表单</span></div></div>
+      <div class="flow">↓ POST /api/chat（SSE）</div>
+      <div class="row"><div class="row-label">Next.js BFF<small>Route Handler</small></div><div class="row-body"><span class="chip hi">转发 + 鉴权</span><span class="chip">注入 session</span><span class="chip">错误兜底</span></div></div>
+      <div class="flow">↓ 内网调用（携带 trace_id）</div>
+      <div class="row"><div class="row-label">FastAPI<small>业务层</small></div><div class="row-body"><span class="chip">会话管理</span><span class="chip">限流</span><span class="chip">SSE 组装</span></div></div>
+      <div class="flow">↓</div>
+      <div class="row"><div class="row-label">编排<small>LangGraph</small></div><div class="row-body"><span class="chip hi">rewrite → retrieve</span><span class="chip">→ grade</span><span class="chip">→ generate</span><span class="chip">→ 未命中则 fallback</span></div></div>
+      <div class="flow">↓</div>
+      <div class="row"><div class="row-label">能力层<small>Services</small></div><div class="row-body"><span class="chip">fastembed 向量化</span><span class="chip">Qdrant 检索</span><span class="chip">instructor 分流</span><span class="chip">litellm 网关</span><span class="chip">语义缓存</span></div></div>
+      <div class="flow">↓</div>
+      <div class="row"><div class="row-label">存储<small>Storage</small></div><div class="row-body"><span class="chip">Postgres 业务表</span><span class="chip">Qdrant 向量</span><span class="chip">Langfuse trace</span><span class="chip">Redis 缓存</span></div></div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section id="tree">
+    <div class="sec-head"><span class="sec-num">03</span><h2>目录结构</h2></div>
+    <p class="sec-desc">monorepo，前后端各自独立可跑。后端按「api 薄、service 厚」分层——路由只做参数校验和响应组装，业务逻辑全在 services，这样写测试时不用起 HTTP 服务。</p>
+    <pre><span class="c">kb-agent/</span>
+├── docker-compose.yml        <span class="c"># postgres + qdrant + langfuse 一键起</span>
+├── .env.example
+├── README.md                 <span class="c"># 架构图 + 启动步骤 + 验收清单（面试官会看这个）</span>
+├── docs/
+│   ├── spec.html             <span class="c"># 本文件</span>
+│   └── decisions.md          <span class="c"># ADR：每个选型的取舍记录（加分项）</span>
+├── backend/
+│   ├── pyproject.toml
+│   ├── app/
+│   │   ├── main.py           <span class="c"># FastAPI 实例 + CORS + 中间件</span>
+│   │   ├── core/
+│   │   │   ├── config.py     <span class="c"># pydantic-settings 读 .env</span>
+│   │   │   ├── llm.py        <span class="c"># litellm 网关：模型档位 / 降级 / 记账</span>
+│   │   │   └── logging.py    <span class="c"># trace_id 透传</span>
+│   │   ├── db/
+│   │   │   ├── session.py
+│   │   │   └── models.py     <span class="c"># Document / Chunk / Ticket / Conversation</span>
+│   │   ├── api/
+│   │   │   ├── chat.py       <span class="c"># POST /chat/stream  (SSE)</span>
+│   │   │   ├── documents.py  <span class="c"># 上传 / 列表 / 删除</span>
+│   │   │   └── tickets.py    <span class="c"># 提交 / 分流 / 人工纠正</span>
+│   │   ├── services/
+│   │   │   ├── ingest.py     <span class="c"># 解析 → 切片 → 向量化</span>
+│   │   │   ├── rag.py        <span class="c"># 检索 + 重排 + 引用组装</span>
+│   │   │   ├── graph.py      <span class="c"># langgraph 流程图定义</span>
+│   │   │   └── classify.py   <span class="c"># instructor 结构化分流</span>
+│   │   └── schemas.py        <span class="c"># Pydantic 请求/响应模型</span>
+│   └── tests/
+│       ├── test_api.py       <span class="c"># 路由层单测</span>
+│       └── test_eval.py      <span class="c"># deepeval 评测（CI 里跑）</span>
+└── frontend/
+    ├── package.json
+    ├── app/
+    │   ├── layout.tsx
+    │   ├── page.tsx          <span class="c"># 聊天主页</span>
+    │   ├── tickets/page.tsx  <span class="c"># 工单列表 + 分流结果</span>
+    │   └── api/chat/route.ts <span class="c"># BFF：转发 SSE</span>
+    ├── components/
+    │   ├── chat-panel.tsx    <span class="c"># useChat 封装</span>
+    │   ├── citation-card.tsx <span class="c"># 引用来源卡片</span>
+    │   └── ticket-form.tsx
+    └── lib/api.ts            <span class="c"># 后端 API 客户端（类型对齐 schemas.py）</span></pre>
+  </section>
+
+  <!-- 4 -->
+  <section id="deps">
+    <div class="sec-head"><span class="sec-num">04</span><h2>依赖清单</h2></div>
+    <p class="sec-desc">只列真正会用到的，避免装一堆用不上的包拖慢环境。<b>版本用 <code>&gt;=</code> 下限而不是锁死</b>——AI 生态版本迭代快，锁死反而装不上。</p>
+    <pre><span class="c"># backend/pyproject.toml</span>
+[project]
+name = <span class="s">"kb-agent-backend"</span>
+requires-python = <span class="s">">=3.12"</span>
+dependencies = [
+  <span class="c"># Web</span>
+  <span class="s">"fastapi>=0.115"</span>, <span class="s">"uvicorn[standard]>=0.32"</span>, <span class="s">"sse-starlette>=2.1"</span>,
+  <span class="s">"pydantic>=2.9"</span>, <span class="s">"pydantic-settings>=2.5"</span>, <span class="s">"python-multipart>=0.0.12"</span>,
+  <span class="c"># DB</span>
+  <span class="s">"sqlalchemy>=2.0"</span>, <span class="s">"psycopg[binary]>=3.2"</span>, <span class="s">"alembic>=1.13"</span>,
+  <span class="c"># LLM</span>
+  <span class="s">"litellm>=1.50"</span>, <span class="s">"instructor>=1.5"</span>, <span class="s">"langgraph>=0.2"</span>,
+  <span class="s">"openai>=1.50"</span>,
+  <span class="c"># RAG</span>
+  <span class="s">"lightrag-hku>=1.0"</span>, <span class="s">"qdrant-client>=1.12"</span>,
+  <span class="s">"pypdf>=5.0"</span>, <span class="s">"python-docx>=1.1"</span>, <span class="s">"markitdown>=0.0.1a2"</span>,
+  <span class="c"># 可观测 / 评测</span>
+  <span class="s">"langfuse>=2.50"</span>, <span class="s">"deepeval>=2.0"</span>,
+  <span class="c"># 工具</span>
+  <span class="s">"redis>=5.0"</span>, <span class="s">"tenacity>=9.0"</span>, <span class="s">"structlog>=24.4"</span>,
+]
+[project.optional-dependencies]
+dev = [<span class="s">"pytest>=8.3"</span>, <span class="s">"pytest-asyncio>=0.24"</span>, <span class="s">"httpx>=0.27"</span>, <span class="s">"ruff>=0.7"</span>]</pre>
+    <pre style="margin-top:12px"><span class="c"># frontend/package.json （关键依赖）</span>
+{
+  <span class="k">"dependencies"</span>: {
+    <span class="k">"next"</span>: <span class="s">"^15.1.0"</span>,
+    <span class="k">"react"</span>: <span class="s">"^19.0.0"</span>,
+    <span class="k">"ai"</span>: <span class="s">"^4.0.0"</span>,                  <span class="c">// 核心：流式协议</span>
+    <span class="k">"@ai-sdk/react"</span>: <span class="s">"^1.0.0"</span>,        <span class="c">// useChat hook</span>
+    <span class="k">"@ai-sdk/openai"</span>: <span class="s">"^1.0.0"</span>,       <span class="c">// 仅当需要前端直连时用</span>
+    <span class="k">"tailwindcss"</span>: <span class="s">"^3.4.0"</span>,
+    <span class="k">"lucide-react"</span>: <span class="s">"^0.460.0"</span>,
+    <span class="k">"zod"</span>: <span class="s">"^3.23.0"</span>                <span class="c">// 与后端 schema 对齐校验</span>
+  }
+}</pre>
+    <div class="note" style="margin-top:14px"><b>省事技巧：</b>不要手写 <code>package.json</code>。用 <code>npx create-next-app@latest --ts --tailwind --app</code> 生成，再 <code>npx shadcn@latest init</code> 加组件库。<code>ai</code> 和 <code>@ai-sdk/react</code> 用 <code>npm i ai @ai-sdk/react</code> 装，让包管理器自己解版本。</div>
+  </section>
+
+  <!-- 5 -->
+  <section id="db">
+    <div class="sec-head"><span class="sec-num">05</span><h2>数据模型</h2></div>
+    <p class="sec-desc">四张核心表。注意 <code>chunks</code> 表只存元数据和向量 id，真正的向量在 Qdrant 里——这是常见的面试追问点（为什么不把向量存数据库？）。</p>
+    <pre><span class="k">-- documents</span>：原始文档
+CREATE TABLE documents (
+  id           TEXT PRIMARY KEY,
+  filename     TEXT NOT NULL,
+  mime         TEXT NOT NULL,
+  size_bytes   INTEGER NOT NULL,
+  status       TEXT NOT NULL DEFAULT <span class="s">'pending'</span>,  <span class="c">-- pending|parsing|indexed|failed</span>
+  error        TEXT,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+<span class="k">-- chunks</span>：切片元数据（向量本体在 Qdrant，这里只存 id 映射）
+CREATE TABLE chunks (
+  id           TEXT PRIMARY KEY,           <span class="c">-- 与 Qdrant point_id 一致</span>
+  document_id  TEXT NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+  ordinal      INTEGER NOT NULL,           <span class="c">-- 在文档中的序号，用于回显上下文</span>
+  content      TEXT NOT NULL,
+  page         INTEGER,
+  token_count  INTEGER NOT NULL,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_chunks_doc ON chunks(document_id, ordinal);
+
+<span class="k">-- tickets</span>：工单 + 分流结果
+CREATE TABLE tickets (
+  id            TEXT PRIMARY KEY,
+  title         TEXT NOT NULL,
+  body          TEXT NOT NULL,
+  category      TEXT,                      <span class="c">-- billing|account|bug|feature|other</span>
+  priority      TEXT,                      <span class="c">-- p0|p1|p2|p3</span>
+  confidence    REAL,                      <span class="c">-- 0~1，低于阈值转人工</span>
+  needs_human   BOOLEAN NOT NULL DEFAULT false,
+  raw_llm       JSONB,                     <span class="c">-- 完整模型输出，便于 badcase 复盘</span>
+  corrected_by  TEXT,                      <span class="c">-- 人工纠正后的分类，做后续优化</span>
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_tickets_cat ON tickets(category, created_at DESC);
+
+<span class="k">-- conversations</span>：会话与消息
+CREATE TABLE conversations (
+  id           TEXT PRIMARY KEY,
+  title        TEXT,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE TABLE messages (
+  id               TEXT PRIMARY KEY,
+  conversation_id  TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+  role             TEXT NOT NULL,          <span class="c">-- user|assistant</span>
+  content          TEXT NOT NULL,
+  citations        JSONB,                  <span class="c">-- [{chunk_id, document_id, page, score}]</span>
+  prompt_tokens    INTEGER,
+  completion_tokens INTEGER,
+  cost_usd         NUMERIC(10,6),
+  latency_ms       INTEGER,
+  trace_id         TEXT,                   <span class="c">-- 对应 Langfuse</span>
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);</pre>
+    <div class="note blue" style="margin-top:14px"><b>为什么存 token / cost / latency 到消息表？</b>因为这让你能在前端做一个「成本看板」，也能在简历里写「平均单次问答成本 $0.0031，缓存命中率 34%」。<b>没有数据的项目没法量化，没量化的简历没有说服力。</b></div>
+  </section>
+
+  <!-- 6 -->
+  <section id="api">
+    <div class="sec-head"><span class="sec-num">06</span><h2>API 契约</h2></div>
+    <p class="sec-desc">前后端先对齐这张表再动手，能省掉大量联调返工。所有接口前缀 <code>/api/v1</code>，统一错误格式 <code>{code, message, trace_id}</code>。</p>
+    <table class="tbl">
+      <tr><th>方法</th><th>路径</th><th>用途</th><th>关键点</th></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/documents</code></td><td>上传文档</td><td>multipart；立即返回 <code>pending</code>，解析走后台任务，前端轮询 status</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/documents</code></td><td>文档列表</td><td>含 status 和 chunk 数，前端显示索引进度</td></tr>
+      <tr><td><span class="method del">DEL</span></td><td><code>/documents/{id}</code></td><td>删除文档</td><td>级联删 chunks + Qdrant 向量，要保证一致</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/chat/stream</code></td><td><b>流式问答</b></td><td>SSE；事件见下方；带 <code>conversation_id</code> 复用会话</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/tickets</code></td><td>提交工单</td><td>同步返回分流结果，低置信度自动置 <code>needs_human</code></td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/tickets</code></td><td>工单列表</td><td>按 category / needs_human 过滤，分页</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/tickets/{id}/correct</code></td><td>人工纠正分类</td><td>写 <code>corrected_by</code>，作为后续优化依据</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/metrics/summary</code></td><td>成本与质量看板</td><td>聚合 token / cost / 平均延迟 / 命中率</td></tr>
+    </table>
+
+    <p class="sec-desc" style="margin-top:22px">流式接口的事件设计——<b>前端要能分别处理「文本增量」和「引用来源」两类数据</b>，所以不能只吐纯文本：</p>
+    <pre><span class="c"># 请求</span>
+POST /api/v1/chat/stream
+{ <span class="k">"conversation_id"</span>: <span class="s">"c_123"</span>, <span class="k">"message"</span>: <span class="s">"报销流程要几天？"</span> }
+
+<span class="c"># 响应（text/event-stream，逐条推送）</span>
+event: retrieval
+data: {<span class="k">"hits"</span>: 3, <span class="k">"top_score"</span>: 0.82}
+
+event: citation
+data: {<span class="k">"chunk_id"</span>: <span class="s">"k_88"</span>, <span class="k">"document"</span>: <span class="s">"财务制度v3.pdf"</span>, <span class="k">"page"</span>: 12, <span class="k">"score"</span>: 0.82}
+
+event: delta
+data: {<span class="k">"text"</span>: <span class="s">"根据财务制度，普通报销"</span>}
+
+event: delta
+data: {<span class="k">"text"</span>: <span class="s">"一般在 5 个工作日内到账。"</span>}
+
+event: done
+data: {<span class="k">"message_id"</span>: <span class="s">"m_456"</span>, <span class="k">"tokens"</span>: {<span class="k">"in"</span>: 1240, <span class="k">"out"</span>: 86}, <span class="k">"cost_usd"</span>: 0.0021, <span class="k">"latency_ms"</span>: 1840, <span class="k">"trace_id"</span>: <span class="s">"lf_abc"</span>}</pre>
+    <div class="note red" style="margin-top:14px"><b>易踩的坑：</b>用 <code>EventSource</code> 无法发送 POST body，且不能自定义 header。所以要么改成 GET + query 传参（消息长了会超 URL 长度限制），要么用 fetch + ReadableStream 手动解析——<b>这就是为什么建议直接用 Vercel AI SDK，它已经处理好了这些</b>。</div>
+  </section>
+
+  <!-- 7 -->
+  <section id="fe">
+    <div class="sec-head"><span class="sec-num">07</span><h2>前端页面与状态</h2></div>
+    <p class="sec-desc">三个页面，但要处理的状态比页面多得多。这一节列的是「面试官会点开看」的细节。</p>
+    <table class="tbl">
+      <tr><th>页面</th><th>核心交互</th><th>必须处理的 5 个状态</th></tr>
+      <tr>
+        <td><b>聊天主页</b><br><code>/</code></td>
+        <td>输入 → 流式输出 → 引用卡片可点开原文</td>
+        <td>① 空态引导（给 3 个示例问题，别让用户面对空输入框）② 检索中（显示「正在查资料…」而非空白转圈）③ 流式输出中（打字机 + 可中断按钮）④ 未命中（明确说「文档里没找到」，不要硬编）⑤ 出错（可重试，保留已输出内容）</td>
+      </tr>
+      <tr>
+        <td><b>文档管理</b><br><code>/documents</code></td>
+        <td>拖拽上传、进度轮询、删除</td>
+        <td>上传中 / 解析中 / 已索引 / 解析失败（给失败原因）/ 空列表引导</td>
+      </tr>
+      <tr>
+        <td><b>工单台</b><br><code>/tickets</code></td>
+        <td>列表 + 分类筛选 + 低置信度高亮 + 一键纠正</td>
+        <td>加载骨架屏 / 空结果 / 待人工（醒目标记）/ 已纠正（显示原分类划掉）/ 分页加载</td>
+      </tr>
+    </table>
+    <ul class="plain" style="margin-top:16px">
+      <li><b>引用溯源是这类产品的灵魂。</b>每个回答下面列出引用的文档名 + 页码 + 相似度，点击能定位到原文片段。面试官看到这个会觉得你真的想过「用户凭什么信你」。</li>
+      <li><b>流式中断必须做。</b>用户改主意了要能停，且已输出的内容要保留。用 <code>useChat</code> 的 <code>stop()</code>，后端配合断开连接时终止生成（省 token）。</li>
+      <li><b>骨架屏 > 转圈。</b>列表类页面用骨架屏，感知延迟能降一半，这是纯前端功力，很容易被看见。</li>
+      <li><b>类型要对齐。</b>用 <code>zod</code> 定义一份 schema，后端 <code>schemas.py</code> 同名同结构。改接口时两边一起改，比口头约定靠谱。</li>
+    </ul>
+  </section>
+
+  <!-- 8 -->
+  <section id="plan">
+    <div class="sec-head"><span class="sec-num">08</span><h2>四周验收检查点</h2></div>
+    <p class="sec-desc">每一条都是可验证的——做完打勾，勾不满就说明这周没结束。进度会存在本地，关掉页面也不会丢。</p>
+
+    <div class="week" data-week="1">
+      <div class="week-head">
+        <div class="week-title">第 1 周 · 打通最小闭环<span>前后端能对话</span></div>
+        <div class="progress" data-progress>0/6</div>
+      </div>
+      <div class="week-body">
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>后端能起、能流式返回</b>FastAPI 跑在 8000，<code>/chat/stream</code> 用 curl 能看到逐条 event<span class="metric">验收：<code>curl -N</code> 输出里出现至少 3 个 <code>event: delta</code></span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>前端能流式渲染</b>Next.js 跑在 3000，输入问题能看到逐字出现<span class="metric">验收：浏览器 Network 里该请求是 <code>text/event-stream</code>，内容不是一次性返回</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>接入层收敛完成</b>所有模型调用都过 <code>core/llm.py</code>，业务代码里搜不到裸 <code>openai.</code><span class="metric">验收：<code>grep -r "openai.chat" app/ | grep -v core/llm</code> 无结果</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>上传 + 解析 + 切片跑通</b>传一个 PDF，能看到 status 从 pending 变 indexed<span class="metric">验收：数据库 <code>chunks</code> 表有记录，且 token_count 都在合理区间（200~800）</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>检索能召回</b>问一个文档里明确写了的问题，能返回相关 chunk<span class="metric">验收：<code>top_score</code> &gt; 0.6，且召回内容肉眼判断确实相关</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>有 .env.example 和 README 启动说明</b><span class="metric">验收：换一台机器照着 README 能跑起来（自己删 node_modules 试一次）</span></span></label>
+      </div>
+    </div>
+
+    <div class="week" data-week="2">
+      <div class="week-head">
+        <div class="week-title">第 2 周 · 把质量做上去<span>检索优化 + 评测基线</span></div>
+        <div class="progress" data-progress>0/5</div>
+      </div>
+      <div class="week-body">
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>切片策略可配置</b>chunk_size / overlap 抽成配置，能对比两种参数的效果<span class="metric">验收：docs/decisions.md 里记录了你选的参数和理由</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>加混合检索 + 重排</b>向量 + 关键词（BM25）双路召回，再重排取 top-k<span class="metric">验收：同一批问题，召回准确率比第 1 周有可量化提升</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>建 50 条评测集</b>问题和标准答案手写，覆盖「文档里有」「文档里没有」两类<span class="metric">验收：<code>tests/test_eval.py</code> 能跑出准确率数字</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>评测接入 CI</b>GitHub Actions 每次 push 跑评测<span class="metric">验收：PR 页面上能看到评测结果，且失败会红</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>引用来源能展示</b>回答下方列出文档名 + 页码，点击可展开原文<span class="metric">验收：截图能放进 README</span></span></label>
+      </div>
+    </div>
+
+    <div class="week" data-week="3">
+      <div class="week-head">
+        <div class="week-title">第 3 周 · 工单分流 + 可观测<span>第二业务场景</span></div>
+        <div class="progress" data-progress>0/6</div>
+      </div>
+      <div class="week-body">
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>instructor 结构化分流跑通</b>输出严格符合 Pydantic schema，字段有 category / priority / confidence<span class="metric">验收：故意传脏数据，能触发带错误重试而不是崩掉</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>低置信度转人工</b>confidence &lt; 0.7 时 <code>needs_human=true</code>，前端醒目标记<span class="metric">验收：造 10 条模糊工单，人工确认分流是否合理</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>人工纠正闭环</b>能改分类，且 <code>corrected_by</code> 落库<span class="metric">验收：纠正 5 条后，能用这些样本分析模型偏差</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>接入 Langfuse</b>每次问答都有 trace，能看到 prompt 原文、检索 chunk、token、耗时<span class="metric">验收：Langfuse 界面能按 trace_id 查到一条完整链路</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>成本记账</b>每条 message 落 token / cost / latency<span class="metric">验收：<code>/metrics/summary</code> 返回真实聚合数字</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>语义缓存</b>相似问题命中缓存，跳过模型调用<span class="metric">验收：重复问同一个问题，第二次延迟下降且 cost 为 0</span></span></label>
+      </div>
+    </div>
+
+    <div class="week" data-week="4">
+      <div class="week-head">
+        <div class="week-title">第 4 周 · 工程化与包装<span>决定它是作品还是作业</span></div>
+        <div class="progress" data-progress>0/6</div>
+      </div>
+      <div class="week-body">
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>超时 + 重试 + 降级</b>模型超时切备用模型，连续失败切本地 ollama<span class="metric">验收：断网或改错 key，系统给出友好提示而不是 500</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>docker-compose 一键起</b>postgres / qdrant / langfuse / 前后端全在里面<span class="metric">验收：<code>docker compose up</code> 后浏览器能直接访问</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>README 有架构图和评测结果表</b>不是罗列技术栈，是讲清「为什么这么设计」<span class="metric">验收：一个不懂这个项目的人读完能讲出架构</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>记录 3 个踩坑案例</b>每个写清「现象 → 排查 → 根因 → 修复」<span class="metric">验收：这是面试时最好用的素材，比背八股强</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>演示录屏 60 秒</b>上传文档 → 提问 → 看引用 → 提工单 → 看分流 → 看成本看板<span class="metric">验收：能直接发给 HR 或贴在简历链接里</span></span></label>
+        <label class="task"><input type="checkbox"><span class="task-txt"><b>简历三条 bullet 定稿</b>每条带量化数字<span class="metric">验收：见下一节的模板</span></span></label>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:16px"><b>如果时间不够，砍功能的优先级：</b>语义缓存 → 工单纠正闭环 → 混合检索。<b>绝对不能砍的：</b>评测集、Langfuse trace、README。前两个是「你真做过」的证据，第三个是「你能表达清楚」的证据。</div>
+  </section>
+
+  <!-- 9 -->
+  <section id="resume">
+    <div class="sec-head"><span class="sec-num">09</span><h2>简历怎么写</h2></div>
+    <p class="sec-desc">不要写「使用 LangChain 实现了 RAG 问答系统」。那种句子 HR 一天看八十遍。要写<b>问题和结果</b>，而不是技术名词。</p>
+    <pre><span class="c">✗ 弱写法</span>
+基于 LangChain + FastAPI + React 开发了知识库问答系统，
+实现了文档上传、向量检索和流式回答功能。
+
+<span class="c">✓ 强写法（三条，按这个结构）</span>
+· 面向内部文档分散、检索靠人翻的问题，搭建「解析-检索-生成」链路，
+  支持 PDF/Word/网页混合入库；针对表格与跨页内容设计切片策略，
+  50 条标注集上答案准确率从 62% 提升至 84%。
+
+· 为控制成本引入统一模型网关与语义缓存，按问题复杂度分档路由，
+  单次问答平均成本降至 $0.0031，重复问题命中缓存后延迟下降 61%；
+  接入 Langfuse 全链路追踪，可定位到具体 chunk 的召回质量。
+
+· 设计工单自动分流模块，用结构化输出约束保证分类结果可直接入库，
+  6 分类准确率 91%；低置信度样本自动转人工并支持纠正回流，
+  人工复核量下降约 40%。</pre>
+    <div class="note blue" style="margin-top:14px"><b>注意每条的结构：</b>「解决什么问题 → 我做了什么设计 → 可量化结果」。三个数字（84%、61%、91%）是这段简历真正的重量。<b>数字不必好看，但必须真实且能解释来源</b>——面试官一定会问「这个 84% 怎么测的」。</div>
+    <div class="note red"><b>面试高频追问（前后端视角）：</b>① 为什么用 SSE 不用 WebSocket？（单向流、基于 HTTP 无需额外协议、断线重连简单）② 流式输出中途用户关页面，后端怎么知道？（监听 disconnect，取消 task 省 token）③ 引用溯源怎么保证不指错？（chunk_id 与向量库 point_id 一致，回答时只允许引用本次召回集合内的 chunk）④ 上传大文件怎么不阻塞？（后台任务 + 状态轮询，不要同步解析）⑤ 向量库和业务库怎么保持一致？（删除时先软删业务记录再删向量，失败可补偿）</div>
+  </section>
+
+  <footer>
+    配套骨架已生成于 <code>kb-agent/</code>，含 README、docker-compose、后端核心模块与前端聊天页。按第 1 周检查点开始跑即可。
+  </footer>
+
+</div>
+
+<script>
+  // 勾选进度，localStorage 持久化
+  document.querySelectorAll('.week').forEach(function (week) {
+    var key = 'kb-agent-week-' + week.dataset.week;
+    var boxes = week.querySelectorAll('input[type=checkbox]');
+    var label = week.querySelector('[data-progress]');
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(key) || '{}'); } catch (e) { saved = {}; }
+
+    function sync() {
+      var done = 0;
+      boxes.forEach(function (b, i) {
+        if (b.checked) done++;
+        var t = b.closest('.task');
+        if (b.checked) t.classList.add('done'); else t.classList.remove('done');
+      });
+      label.textContent = done + '/' + boxes.length;
+      label.style.background = done === boxes.length ? '#e8f5ec' : '#eef2ff';
+      label.style.color = done === boxes.length ? '#1f7a3d' : '#2f6fed';
+      var state = {};
+      boxes.forEach(function (b, i) { state[i] = b.checked; });
+      try { localStorage.setItem(key, JSON.stringify(state)); } catch (e) {}
+    }
+
+    boxes.forEach(function (b, i) {
+      if (saved[i]) b.checked = true;
+      b.addEventListener('change', sync);
+    });
+    sync();
+  });
+</script>
+</body>
+</html>
