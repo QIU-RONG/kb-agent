@@ -79,6 +79,8 @@ async function json<T>(path: string, init?: RequestInit): Promise<T> {
       .slice(0, 160);
     throw new Error(`${res.status} ${brief || res.statusText}`);
   }
+  // 204 没有响应体，直接 res.json() 会抛错
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 
@@ -106,6 +108,31 @@ export type ChunkOut = {
 };
 
 export const getChunk = (id: string) => json<ChunkOut>(`${PREFIX}/chunks/${id}`);
+
+// ---------- 会话 ----------
+export type ConversationOut = {
+  id: string;
+  title: string | null;
+  message_count: number;
+  last_at: string;
+  preview: string | null;
+};
+
+export type StoredMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  citations: Citation[];
+  created_at: string;
+};
+
+export const listConversations = () => json<ConversationOut[]>(`${PREFIX}/conversations`);
+
+export const listMessages = (id: string) =>
+  json<StoredMessage[]>(`${PREFIX}/conversations/${id}/messages`);
+
+export const deleteConversation = (id: string) =>
+  json<void>(`${PREFIX}/conversations/${id}`, { method: "DELETE" });
 
 // ---------- 工单 ----------
 export const listTickets = (params: { category?: string; needs_human?: boolean } = {}) => {

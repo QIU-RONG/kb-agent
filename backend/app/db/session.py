@@ -48,6 +48,15 @@ def _ensure_columns() -> None:
             )
             conn.execute(text("CREATE INDEX IF NOT EXISTS ix_documents_visibility ON documents (visibility)"))
 
+    if "conversations" in inspector.get_table_names():
+        ccols = {c["name"] for c in inspector.get_columns("conversations")}
+        if "user_id" not in ccols:
+            with engine.begin() as conn:
+                conn.execute(text("ALTER TABLE conversations ADD COLUMN user_id VARCHAR(32)"))
+                conn.execute(
+                    text("CREATE INDEX IF NOT EXISTS ix_conversations_user_id ON conversations (user_id)")
+                )
+
     if "traces" in inspector.get_table_names():
         tcols = {c["name"] for c in inspector.get_columns("traces")}
         if "user_id" not in tcols:

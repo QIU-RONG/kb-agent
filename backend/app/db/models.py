@@ -108,6 +108,8 @@ class Conversation(Base):
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
     title: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # 会话归属。没有这个字段时，只要知道 conversation_id 就能续聊别人的会话
+    user_id: Mapped[str | None] = mapped_column(String(32), nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     messages: Mapped[list["Message"]] = relationship(

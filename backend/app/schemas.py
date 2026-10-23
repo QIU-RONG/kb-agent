@@ -103,6 +103,23 @@ class MetricsSummary(BaseModel):
     tickets_needs_human: int
 
 
+# ---------- 会话 ----------
+class ConversationOut(BaseModel):
+    id: str
+    title: str | None
+    message_count: int
+    last_at: datetime
+    preview: str | None = None
+
+
+class MessageOut(BaseModel):
+    id: str
+    role: str
+    content: str
+    citations: list[Citation] = []
+    created_at: datetime
+
+
 # ---------- 链路追踪 ----------
 class SpanOut(BaseModel):
     name: str

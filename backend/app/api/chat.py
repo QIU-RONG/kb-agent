@@ -37,9 +37,20 @@ async def chat_stream(req: ChatRequest, user: User = Depends(get_current_user)):
         db = SessionLocal()
         try:
             conv = db.get(Conversation, req.conversation_id) if req.conversation_id else None
+
+            # 续聊必须校验归属：知道 conversation_id 不等于能接着聊别人的会话，
+            # 否则会话历史里的内容会被完整读出来
+            if conv is not None and conv.user_id not in (None, user.id):
+                yield {"event": "error", "data": json.dumps({"message": "无权访问该会话"}, ensure_ascii=False)}
+                return
+
             if conv is None:
-                conv = Conversation(title=req.message[:40])
+                conv = Conversation(title=req.message[:40], user_id=user.id)
                 db.add(conv)
+                db.commit()
+            elif conv.user_id is None:
+                # 兼容加字段之前创建的旧会话，认领给当前用户
+                conv.user_id = user.id
                 db.commit()
 
             db.add(Message(conversation_id=conv.id, role="user", content=req.message))
