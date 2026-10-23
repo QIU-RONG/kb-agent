@@ -7,6 +7,7 @@ import {
   uploadDocument,
   type DocumentOut,
 } from "../../lib/api";
+import { getUser, ROLE_LABEL } from "../../lib/auth";
 
 const STATUS_LABEL: Record<string, string> = {
   pending: "排队中",
@@ -22,11 +23,35 @@ const STATUS_STYLE: Record<string, string> = {
   failed: "bg-red-100 text-red-700",
 };
 
+const VISIBILITY_LABEL: Record<string, string> = {
+  public: "全员可见",
+  hr: "仅 HR",
+  finance: "仅财务",
+  admin: "仅管理员",
+};
+
+const VISIBILITY_STYLE: Record<string, string> = {
+  public: "bg-[#f1f3f8] text-[#5c6474]",
+  hr: "bg-[#fbeaf0] text-[#993556]",
+  finance: "bg-[#faeeda] text-[#854f0b]",
+  admin: "bg-[#ece9fb] text-[#4b3fa8]",
+};
+
 export default function DocumentsPage() {
   const [docs, setDocs] = useState<DocumentOut[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [visibility, setVisibility] = useState("public");
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+
+  const [me, setMe] = useState<ReturnType<typeof getUser>>(null);
+  const canUploadSensitive = me ? ["hr", "finance", "admin"].includes(me.role) : false;
+
+  // 在 effect 里读 localStorage：服务端渲染时没有 window，
+  // 直接在渲染期读会导致 hydration 不一致
+  useEffect(() => {
+    setMe(getUser());
+  }, []);
 
   const reload = useCallback(async () => {
     try {
@@ -53,7 +78,7 @@ export default function DocumentsPage() {
     setUploading(true);
     setError(null);
     try {
-      await uploadDocument(file);
+      await uploadDocument(file, visibility);
       await reload();
     } catch (e) {
       setError((e as Error).message);
@@ -74,6 +99,25 @@ export default function DocumentsPage() {
       <p className="mt-1 text-sm text-muted">
         支持 PDF / Word / Markdown / 文本，单文件上限 20MB。上传后后台解析，可关闭页面。
       </p>
+
+      {canUploadSensitive && (
+        <div className="mt-4 flex items-center gap-2 text-[12px]">
+          <span className="text-muted">上传后可见范围</span>
+          <select
+            value={visibility}
+            onChange={(e) => setVisibility(e.target.value)}
+            className="rounded-lg border border-line bg-white px-2 py-1 text-[12px] outline-none"
+          >
+            <option value="public">全员可见</option>
+            <option value="hr">仅 HR</option>
+            <option value="finance">仅财务</option>
+            <option value="admin">仅管理员</option>
+          </select>
+          <span className="text-[#a4abb8]">
+            （只有 {ROLE_LABEL[me?.role ?? ""] ?? "管理角色"} 及以上能改）
+          </span>
+        </div>
+      )}
 
       <label className="mt-5 flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-line bg-white py-10 hover:border-brand">
         <span className="text-sm text-muted">
@@ -111,6 +155,13 @@ export default function DocumentsPage() {
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-3">
+              <span
+                className={`rounded px-2 py-0.5 text-[10.5px] font-medium ${
+                  VISIBILITY_STYLE[d.visibility] ?? VISIBILITY_STYLE.public
+                }`}
+              >
+                {VISIBILITY_LABEL[d.visibility] ?? d.visibility}
+              </span>
               <span
                 className={`rounded px-2 py-0.5 text-[11px] font-semibold ${
                   STATUS_STYLE[d.status] ?? ""

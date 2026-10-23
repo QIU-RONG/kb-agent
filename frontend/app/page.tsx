@@ -194,8 +194,10 @@ export default function ChatPage() {
                     <div className="mt-2.5 flex items-center gap-3 text-[11px] text-muted">
                       {m.meta && (
                         <span className="tabular-nums">
-                          {m.meta.model} · {m.meta.latency_ms}ms · $
-                          {m.meta.cost_usd.toFixed(6)} · {m.meta.tokens.in}/{m.meta.tokens.out} tok
+                          {/* 拒答分支没有模型和 token，别显示成 "· 0ms · $0" */}
+                          {m.meta.model ? `${m.meta.model} · ` : ""}
+                          {m.meta.latency_ms}ms · ${m.meta.cost_usd.toFixed(6)} · {m.meta.tokens.in}/
+                          {m.meta.tokens.out} tok
                         </span>
                       )}
                       <button

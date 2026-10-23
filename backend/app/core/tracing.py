@@ -28,10 +28,11 @@ logger = logging.getLogger(__name__)
 
 
 class Tracer:
-    def __init__(self, question: str):
+    def __init__(self, question: str, user_id: str | None = None):
         self.id = uuid.uuid4().hex[:16]
         self.question = question
         self.answer = ""
+        self.user_id = user_id
         self.spans: list[dict[str, Any]] = []
         self.started = time.perf_counter()
         self._closed = False
@@ -78,6 +79,7 @@ class Tracer:
                     id=self.id,
                     question=self.question[:2000],
                     answer=self.answer[:4000],
+                    user_id=self.user_id,
                     model=summary.get("model") or None,
                     hit_count=int(summary.get("hit_count") or 0),
                     fallback=bool(summary.get("fallback")),

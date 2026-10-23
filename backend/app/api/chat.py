@@ -12,11 +12,12 @@ import asyncio
 import json
 import logging
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from sse_starlette.sse import EventSourceResponse
 
+from app.core.security import get_current_user, visible_scopes
 from app.core.tracing import Tracer
-from app.db.models import Conversation, Message
+from app.db.models import Conversation, Message, User
 from app.db.session import SessionLocal
 from app.schemas import ChatRequest
 from app.services.graph import END_EVENT, run_qa
@@ -26,7 +27,10 @@ router = APIRouter(tags=["chat"])
 
 
 @router.post("/chat/stream")
-async def chat_stream(req: ChatRequest):
+async def chat_stream(req: ChatRequest, user: User = Depends(get_current_user)):
+    # 权限白名单在这里算一次，往下传：检索层据此过滤，模型永远看不到越权内容
+    scopes = visible_scopes(user.role)
+
     async def event_gen():
         # 流式响应的生命周期可能长于请求作用域，
         # 所以这里自己开 session，不用 Depends(get_db)。
@@ -56,9 +60,9 @@ async def chat_stream(req: ChatRequest):
             async def emit(event: str, data: dict) -> None:
                 await queue.put((event, data))
 
-            tracer = Tracer(req.message)
+            tracer = Tracer(req.message, user_id=user.id)
 
-            task = asyncio.create_task(run_qa(req.message, history, emit, tracer))
+            task = asyncio.create_task(run_qa(req.message, history, emit, tracer, scopes))
 
             try:
                 while True:

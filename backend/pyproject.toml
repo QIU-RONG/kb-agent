@@ -30,6 +30,9 @@ dependencies = [
   # 可观测 / 评测
   "langfuse>=2.50",
   "deepeval>=2.0",
+  # 鉴权
+  "pyjwt>=2.8",
+  "bcrypt>=4.1",
   # 工具
   "redis>=5.0",
   "tenacity>=9.0",

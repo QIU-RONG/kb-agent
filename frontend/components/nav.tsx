@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { getToken, getUser, logout, ROLE_LABEL, type AuthUser } from "../lib/auth";
 
 const LINKS = [
   { href: "/", label: "问答" },
@@ -13,6 +15,30 @@ const LINKS = [
 
 export function Nav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const token = getToken();
+    const u = getUser();
+
+    if (!token) {
+      setReady(true);
+      if (pathname !== "/login") router.replace("/login");
+      return;
+    }
+
+    setUser(u);
+    setReady(true);
+  }, [pathname, router]);
+
+  // 登录页不显示导航，避免"未登录却能点进去"的错觉
+  if (pathname === "/login") return null;
+
+  if (!ready) {
+    return <div className="h-14 border-b border-line bg-white" />;
+  }
 
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-white/85 backdrop-blur">
@@ -43,9 +69,28 @@ export function Nav() {
           })}
         </nav>
 
-        <div className="ml-auto hidden items-center gap-1.5 text-[11px] text-muted sm:flex">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#1f7a3d]" />
-          local · deepseek
+        <div className="ml-auto flex items-center gap-3">
+          {user && (
+            <>
+              <div className="flex items-center gap-2">
+                <span className="grid h-6 w-6 place-items-center rounded-full bg-[#eef2ff] text-[10px] font-bold text-brand">
+                  {user.display_name.slice(0, 1)}
+                </span>
+                <div className="hidden leading-tight sm:block">
+                  <div className="text-[12px] font-medium">{user.display_name}</div>
+                  <div className="text-[10px] text-muted">
+                    {ROLE_LABEL[user.role] ?? user.role} · 可见 {user.scopes.join("/")}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={logout}
+                className="rounded-lg px-2 py-1 text-[12px] text-muted hover:bg-[#f5f6f8] hover:text-ink"
+              >
+                退出
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>

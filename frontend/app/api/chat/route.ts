@@ -19,7 +19,13 @@ export async function POST(req: Request) {
   try {
     upstream = await fetch(`${BACKEND}/api/v1/chat/stream`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        // 登录态由浏览器带上，这里原样透传；密钥仍然只在服务端
+        ...(req.headers.get("authorization")
+          ? { Authorization: req.headers.get("authorization") as string }
+          : {}),
+      },
       body,
       // 关键：把浏览器的中断信号传下去，
       // 用户点"停止"时后端也能感知并终止生成（省 token）
@@ -30,6 +36,10 @@ export async function POST(req: Request) {
       { message: `后端不可达：${(err as Error).message}` },
       { status: 502 },
     );
+  }
+
+  if (upstream.status === 401) {
+    return Response.json({ message: "未登录" }, { status: 401 });
   }
 
   if (!upstream.ok || !upstream.body) {

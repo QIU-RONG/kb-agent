@@ -44,6 +44,15 @@ class Hit:
     # vector = 余弦相似度；keyword = 2-gram 命中率。
     # 两者量纲不同，判分阈值必须分开，否则关键词召回会被系统性低估。
     source: str = "vector"
+    visibility: str = "public"
+
+
+@dataclass
+class SearchResult:
+    """检索结果 + 因权限被挡掉的条数（写进 trace，方便排查越权）"""
+
+    hits: list[Hit]
+    denied: int = 0
 
 
 # ---------------- 分词与 mock ----------------
@@ -213,6 +222,7 @@ async def upsert_chunks(rows: list[dict]) -> None:
                 "document": r["document"],
                 "page": r.get("page"),
                 "content": r["content"],
+                "visibility": r.get("visibility", "public"),
             },
         )
         for r, vec in zip(rows, vectors)
@@ -231,32 +241,43 @@ async def delete_document(document_id: str) -> None:
     )
 
 
-async def search(query: str, top_k: int | None = None) -> list[Hit]:
+async def search(
+    query: str,
+    top_k: int | None = None,
+    scopes: list[str] | None = None,
+) -> SearchResult:
     """向量召回，失败或为空时降级到关键词召回。
 
-    为什么要降级：真实系统里向量库会挂、会超时、会没建好索引。
-    此时直接返回空会让所有问题都变成"找不到"，体验极差。
+    scopes 是当前用户能看到的文档可见性白名单（见 core/security.py）。
+    过滤在这里做，而不是在生成阶段——否则敏感内容已经进了 prompt。
     """
     top_k = top_k or settings.retrieve_top_k
 
     if not _embedding_available():
-        return await keyword_search(query, top_k)
+        return await keyword_search(query, top_k, scopes)
 
     try:
         vector = (await embed_texts([query]))[0]
         res = await _get_client().query_points(
             collection_name=settings.qdrant_collection,
             query=vector,
-            limit=top_k,
+            limit=top_k * 3,
             with_payload=True,
         )
     except Exception as exc:  # noqa: BLE001
         logger.warning("vector search unavailable, falling back to keywords: %s", exc)
-        return await keyword_search(query, top_k)
+        return await keyword_search(query, top_k, scopes)
 
     hits: list[Hit] = []
+    denied = 0
     for point in res.points:
         p = point.payload or {}
+        visibility = p.get("visibility", "public")
+        if scopes is not None and visibility not in scopes:
+            denied += 1
+            continue
+        if len(hits) >= top_k:
+            continue
         hits.append(
             Hit(
                 chunk_id=str(point.id),
@@ -266,15 +287,19 @@ async def search(query: str, top_k: int | None = None) -> list[Hit]:
                 content=p.get("content", ""),
                 score=float(point.score),
                 source="vector",
+                visibility=visibility,
             )
         )
 
     if not hits:
-        return await keyword_search(query, top_k)
-    return hits
+        fallback = await keyword_search(query, top_k, scopes)
+        return SearchResult(hits=fallback.hits, denied=denied + fallback.denied)
+    return SearchResult(hits=hits, denied=denied)
 
 
-async def keyword_search(query: str, top_k: int = 8) -> list[Hit]:
+async def keyword_search(
+    query: str, top_k: int = 8, scopes: list[str] | None = None
+) -> SearchResult:
     """关键词召回：2-gram 命中率打分。
 
     这是混合检索的基础件，也是向量库不可用时的兜底。
@@ -287,14 +312,14 @@ async def keyword_search(query: str, top_k: int = 8) -> list[Hit]:
 
     terms = _terms(query)
     if not terms:
-        return []
+        return SearchResult(hits=[])
 
     db = SessionLocal()
     try:
         filters = [Chunk.content.ilike(f"%{t}%") for t in terms[:8]]
-        # 连表一次取到文件名，避免 session 关闭后再触发懒加载
+        # 连表一次取到文件名和可见性，避免 session 关闭后再触发懒加载
         rows = (
-            db.query(Chunk, Document.filename)
+            db.query(Chunk, Document.filename, Document.visibility)
             .join(Document, Chunk.document_id == Document.id)
             .filter(or_(*filters))
             .limit(500)
@@ -304,15 +329,19 @@ async def keyword_search(query: str, top_k: int = 8) -> list[Hit]:
         db.close()
 
     if not rows:
-        return []
+        return SearchResult(hits=[])
 
     total = len(terms)
     scored: list[Hit] = []
-    for chunk, filename in rows:
+    denied = 0
+    for chunk, filename, visibility in rows:
         content = chunk.content or ""
         matched = sum(1 for t in terms if t in content)
         score = matched / total
         if score <= 0:
+            continue
+        if scopes is not None and visibility not in scopes:
+            denied += 1
             continue
         # 完整查询串命中时加权，避免被零散 2-gram 命中淹没
         if query in content:
@@ -326,11 +355,12 @@ async def keyword_search(query: str, top_k: int = 8) -> list[Hit]:
                 content=content,
                 score=round(score, 4),
                 source="keyword",
+                visibility=visibility,
             )
         )
 
     scored.sort(key=lambda h: h.score, reverse=True)
-    return scored[:top_k]
+    return SearchResult(hits=scored[:top_k], denied=denied)
 
 
 def new_chunk_id() -> str:

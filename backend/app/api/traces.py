@@ -15,12 +15,13 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from app.db.models import Span, Trace
+from app.core.security import get_current_user
+from app.db.models import Span, Trace, User
 from app.db.session import get_db
 from app.schemas import SpanOut, TraceDetail, TraceSummary
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=["traces"])
+router = APIRouter(tags=["traces"], dependencies=[Depends(get_current_user)])
 
 
 @router.get("/traces", response_model=list[TraceSummary])
@@ -28,8 +29,13 @@ def list_traces(
     limit: int = Query(30, le=200),
     fallback_only: bool = False,
     db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
 ):
     q = db.query(Trace)
+    # trace 里存着完整回答，含敏感文档的内容。
+    # 不按用户隔离的话，普通员工能看到 HR 问薪酬的答案——等于绕过检索层权限。
+    if user.role != "admin":
+        q = q.filter(Trace.user_id == user.id)
     if fallback_only:
         q = q.filter(Trace.fallback.is_(True))
     rows = q.order_by(Trace.created_at.desc()).limit(limit).all()
@@ -37,10 +43,16 @@ def list_traces(
 
 
 @router.get("/traces/{trace_id}", response_model=TraceDetail)
-def get_trace(trace_id: str, db: Session = Depends(get_db)):
+def get_trace(
+    trace_id: str,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
     trace = db.get(Trace, trace_id)
     if trace is None:
         raise HTTPException(404, "trace not found")
+    if user.role != "admin" and trace.user_id != user.id:
+        raise HTTPException(403, "无权查看他人的调用链路")
 
     spans = (
         db.query(Span).filter(Span.trace_id == trace_id).order_by(Span.seq).all()

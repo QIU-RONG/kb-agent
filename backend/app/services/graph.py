@@ -90,6 +90,8 @@ class QAState(TypedDict, total=False):
     usage: Usage
     emit: Emit
     tracer: Any
+    # 当前用户能看到的文档可见性白名单，检索时用来过滤
+    scopes: list[str]
 
 
 # ---------------- 节点 ----------------
@@ -131,10 +133,14 @@ async def _rewrite(state: QAState) -> dict:
 
 async def _retrieve(state: QAState) -> dict:
     tracer = state["tracer"]
-    async with tracer.span("retrieve", query=state["query"]) as s:
-        hits = await rag.search(state["query"])
+    scopes = state.get("scopes")
+    async with tracer.span("retrieve", query=state["query"], scopes=scopes) as s:
+        result = await rag.search(state["query"], scopes=scopes)
+        hits = result.hits
         s["raw_hits"] = len(hits)
         s["source"] = hits[0].source if hits else None
+        # 被权限挡掉的条数：排查越权时的第一手证据
+        s["denied_by_acl"] = result.denied
         # 把每条候选的得分记下来，这是调阈值的唯一依据
         s["candidates"] = [
             {"chunk": h.chunk_id[:8], "score": round(h.score, 4), "source": h.source}
@@ -327,6 +333,7 @@ async def run_qa(
     history: list[dict],
     emit: Emit,
     tracer: Any = None,
+    scopes: list[str] | None = None,
 ) -> dict[str, Any]:
     """执行一次问答，返回最终 state（含 answer / usage / hits）。
 
@@ -343,6 +350,7 @@ async def run_qa(
         "history": history,
         "emit": emit,
         "tracer": tracer,
+        "scopes": scopes,
     }
     try:
         return await _GRAPH.ainvoke(state)

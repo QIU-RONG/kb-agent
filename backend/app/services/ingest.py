@@ -78,6 +78,8 @@ async def ingest_document(document_id: str, path: Path) -> None:
                         "document": doc.filename,
                         "page": page_no,
                         "content": piece,
+                        # 可见性写进向量库 payload，检索时才能按角色过滤
+                        "visibility": doc.visibility,
                     }
                 )
                 db_chunks.append(

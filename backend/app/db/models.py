@@ -31,6 +31,24 @@ class Base(DeclarativeBase):
     pass
 
 
+class User(Base):
+    """内部系统的用户。
+
+    角色决定能检索到哪些文档（见 Document.visibility），
+    不是只决定能不能登录——这一点比登录本身重要。
+    """
+
+    __tablename__ = "users"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    username: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    password_hash: Mapped[str] = mapped_column(String(200))
+    display_name: Mapped[str] = mapped_column(String(64), default="")
+    # employee | hr | finance | admin
+    role: Mapped[str] = mapped_column(String(16), default="employee", index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 class Document(Base):
     __tablename__ = "documents"
 
@@ -40,6 +58,8 @@ class Document(Base):
     size_bytes: Mapped[int] = mapped_column(Integer, default=0)
     # pending | parsing | indexed | failed
     status: Mapped[str] = mapped_column(String(16), default="pending", index=True)
+    # public | hr | finance | admin —— 检索时按用户角色过滤，这是权限的核心
+    visibility: Mapped[str] = mapped_column(String(16), default="public", index=True)
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
@@ -124,6 +144,8 @@ class Trace(Base):
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
     question: Mapped[str] = mapped_column(Text)
     answer: Mapped[str] = mapped_column(Text, default="")
+    # 谁问的。trace 里存着完整回答，不隔离的话等于绕过检索层的权限
+    user_id: Mapped[str | None] = mapped_column(String(32), nullable=True, index=True)
     model: Mapped[str | None] = mapped_column(String(64), nullable=True)
     hit_count: Mapped[int] = mapped_column(Integer, default=0)
     fallback: Mapped[bool] = mapped_column(Boolean, default=False, index=True)

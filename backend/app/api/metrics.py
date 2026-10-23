@@ -9,11 +9,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.core.security import get_current_user
 from app.db.models import Message, Ticket
 from app.db.session import get_db
 from app.schemas import MetricsSummary
 
-router = APIRouter(tags=["metrics"])
+router = APIRouter(tags=["metrics"], dependencies=[Depends(get_current_user)])
 
 
 @router.get("/metrics/summary", response_model=MetricsSummary)

@@ -8,8 +8,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import chat, documents, metrics, tickets, traces
+from app.api import auth, chat, documents, metrics, tickets, traces
 from app.core.config import settings
+from app.db.seed import seed_users
 from app.db.session import init_db
 
 logging.basicConfig(
@@ -22,6 +23,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
+    seed_users()
     logger.info("db ready: %s", settings.database_url)
     if not settings.tracing_enabled:
         logger.info("Langfuse tracing disabled (no keys) - 第 3 周记得配")
@@ -44,6 +46,7 @@ app.add_middleware(
 )
 
 API_PREFIX = "/api/v1"
+app.include_router(auth.router, prefix=API_PREFIX)
 app.include_router(documents.router, prefix=API_PREFIX)
 app.include_router(chat.router, prefix=API_PREFIX)
 app.include_router(tickets.router, prefix=API_PREFIX)

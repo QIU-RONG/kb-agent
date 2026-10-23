@@ -11,6 +11,26 @@ Category = Literal["billing", "account", "bug", "feature", "other"]
 Priority = Literal["p0", "p1", "p2", "p3"]
 
 
+# ---------- 鉴权 ----------
+class LoginRequest(BaseModel):
+    username: str = Field(min_length=1, max_length=64)
+    password: str = Field(min_length=1, max_length=128)
+
+
+class UserOut(BaseModel):
+    id: str
+    username: str
+    display_name: str
+    role: str
+    scopes: list[str] = []
+
+
+class TokenOut(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserOut
+
+
 # ---------- 文档 ----------
 class DocumentOut(BaseModel):
     id: str
@@ -18,6 +38,7 @@ class DocumentOut(BaseModel):
     mime: str
     size_bytes: int
     status: str
+    visibility: str = "public"
     error: str | None = None
     chunk_count: int = 0
     created_at: datetime

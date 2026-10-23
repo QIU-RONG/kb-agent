@@ -5,6 +5,15 @@
 
 const PREFIX = "/api/v1";
 
+/** 带上登录态。没登录时返回空对象，让后端统一返回 401。 */
+function authHeaders(extra?: HeadersInit): HeadersInit {
+  const token = typeof window === "undefined" ? null : window.localStorage.getItem("kb_token");
+  return {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(extra ?? {}),
+  };
+}
+
 export type Citation = {
   chunk_id: string;
   document_id: string;
@@ -19,6 +28,7 @@ export type DocumentOut = {
   mime: string;
   size_bytes: number;
   status: "pending" | "parsing" | "indexed" | "failed";
+  visibility: string;
   error: string | null;
   chunk_count: number;
   created_at: string;
@@ -46,7 +56,18 @@ export type Metrics = {
 };
 
 async function json<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, init);
+  const res = await fetch(path, {
+    ...init,
+    headers: authHeaders(init?.headers),
+  });
+
+  if (res.status === 401) {
+    // 统一处理登录失效，页面不用各自判断
+    const { handleUnauthorized } = await import("./auth");
+    handleUnauthorized();
+    throw new Error("登录已过期，请重新登录");
+  }
+
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     // 后端 500 或 Next 404 都可能返回整页 HTML，直接塞进 UI 会很难看，
@@ -64,14 +85,15 @@ async function json<T>(path: string, init?: RequestInit): Promise<T> {
 // ---------- 文档 ----------
 export const listDocuments = () => json<DocumentOut[]>(`${PREFIX}/documents`);
 
-export async function uploadDocument(file: File): Promise<DocumentOut> {
+export async function uploadDocument(file: File, visibility = "public"): Promise<DocumentOut> {
   const form = new FormData();
   form.append("file", file);
+  form.append("visibility", visibility);
   return json<DocumentOut>(`${PREFIX}/documents`, { method: "POST", body: form });
 }
 
 export const deleteDocument = (id: string) =>
-  fetch(`${PREFIX}/documents/${id}`, { method: "DELETE" });
+  fetch(`${PREFIX}/documents/${id}`, { method: "DELETE", headers: authHeaders() });
 
 export type ChunkOut = {
   id: string;
@@ -174,10 +196,16 @@ export async function streamChat(
 ): Promise<void> {
   const res = await fetch("/api/chat", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(body),
     signal,
   });
+
+  if (res.status === 401) {
+    const { handleUnauthorized } = await import("./auth");
+    handleUnauthorized();
+    throw new Error("登录已过期，请重新登录");
+  }
 
   if (!res.ok || !res.body) {
     throw new Error(`chat failed: ${res.status}`);

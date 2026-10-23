@@ -66,6 +66,12 @@ class Settings(BaseSettings):
     # 分流阈值：低于它转人工
     classify_confidence_threshold: float = 0.7
 
+    # 鉴权
+    # 生产必须换成随机值并从环境变量注入；开发默认值只为方便跑起来
+    jwt_secret: str = "dev-only-change-me-in-production"
+    jwt_algorithm: str = "HS256"
+    token_expire_minutes: int = 720
+
     # 可观测
     langfuse_public_key: str | None = None
     langfuse_secret_key: str | None = None

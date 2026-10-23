@@ -7,13 +7,15 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from app.core.security import get_current_user
 from app.db.models import Ticket
 from app.db.session import get_db
 from app.schemas import TicketCorrect, TicketCreate, TicketOut
 from app.services.classify import classify_ticket, dump_raw
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=["tickets"])
+# 整个路由组统一要求登录，避免漏掉某个接口
+router = APIRouter(tags=["tickets"], dependencies=[Depends(get_current_user)])
 
 
 @router.post("/tickets", response_model=TicketOut, status_code=201)
