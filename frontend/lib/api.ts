@@ -73,6 +73,18 @@ export async function uploadDocument(file: File): Promise<DocumentOut> {
 export const deleteDocument = (id: string) =>
   fetch(`${PREFIX}/documents/${id}`, { method: "DELETE" });
 
+export type ChunkOut = {
+  id: string;
+  document_id: string;
+  document: string;
+  page: number | null;
+  ordinal: number;
+  content: string;
+  token_count: number;
+};
+
+export const getChunk = (id: string) => json<ChunkOut>(`${PREFIX}/chunks/${id}`);
+
 // ---------- 工单 ----------
 export const listTickets = (params: { category?: string; needs_human?: boolean } = {}) => {
   const q = new URLSearchParams();

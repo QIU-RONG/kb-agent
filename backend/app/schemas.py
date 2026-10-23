@@ -37,6 +37,18 @@ class Citation(BaseModel):
     score: float
 
 
+class ChunkOut(BaseModel):
+    """引用卡片点开时用：拿到原文，用户才知道答案是从哪句话来的。"""
+
+    id: str
+    document_id: str
+    document: str
+    page: int | None = None
+    ordinal: int = 0
+    content: str
+    token_count: int = 0
+
+
 # ---------- 工单 ----------
 class TicketCreate(BaseModel):
     title: str = Field(min_length=1, max_length=255)

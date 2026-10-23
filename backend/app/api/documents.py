@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.db.models import Chunk, Document
 from app.db.session import get_db
-from app.schemas import DocumentOut
+from app.schemas import ChunkOut, DocumentOut
 from app.services import rag
 from app.services.ingest import UPLOAD_DIR, ingest_document
 
@@ -87,6 +87,33 @@ def list_documents(db: Session = Depends(get_db)):
         )
         for d in docs
     ]
+
+
+@router.get("/chunks/{chunk_id}", response_model=ChunkOut)
+def get_chunk(chunk_id: str, db: Session = Depends(get_db)):
+    """引用卡片展开时拿原文。
+
+    只读、无副作用，前端可以放心缓存。
+    """
+    row = (
+        db.query(Chunk, Document.filename)
+        .join(Document, Chunk.document_id == Document.id)
+        .filter(Chunk.id == chunk_id)
+        .first()
+    )
+    if row is None:
+        raise HTTPException(404, "chunk not found")
+
+    chunk, filename = row
+    return ChunkOut(
+        id=chunk.id,
+        document_id=chunk.document_id,
+        document=filename,
+        page=chunk.page,
+        ordinal=chunk.ordinal,
+        content=chunk.content,
+        token_count=chunk.token_count,
+    )
 
 
 @router.delete("/documents/{document_id}", status_code=204)
